@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cpwd=`pwd`
+cd GamelistAddon
+./GamelistAddon
+cd "$cpwd"

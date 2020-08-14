@@ -1,0 +1,16 @@
+<RCC>
+  <qresource prefix="Icons">
+    <file>img/replace.svg</file>
+    <file>img/delete.svg</file>
+    <file>img/import.svg</file>
+    <file>img/locked.svg</file>
+    <file>img/preview.svg</file>
+    <file>img/reset.svg</file>
+    <file>img/saveas.svg</file>
+    <file>img/unlocked.svg</file>
+    <file>img/warning.svg</file>
+    <file>img/winkemojis-cryingtears.svg</file>
+    <file>img/winkemojis-joytears.svg</file>
+    <file>img/winkemojis-wink.svg</file>
+  </qresource>
+</RCC>
