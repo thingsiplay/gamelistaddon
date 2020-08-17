@@ -30,11 +30,4 @@ Except as contained in this notice, the name(s) of the above copyright holders s
         # be called by any link.
         self.EXEPATH = Path(Path_of_calling_app).resolve()
         self.DIR = os.path.dirname(self.EXEPATH)
-        # Using pyinstaller with --onefile option to build a single container app requires extracting its contents
-        # to a temporary folder at runtime. In that case the scripts execution directory is different from native
-        # version. The system variable _MEIPASS contains a reference to that folder, so it can be used as base if
-        # present. Otherwise the scripts own path will be used.
-        try:
-            self.INSTALLDIR = sys._MEIPASS
-        except AttributeError:
-            self.INSTALLDIR = os.path.split(self.EXEPATH)[0]
+        self.INSTALLDIR = os.path.split(self.EXEPATH)[0]

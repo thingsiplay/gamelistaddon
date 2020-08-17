@@ -57,10 +57,17 @@ if SETUP:
 
     # requirements
     command_exist('python3')
-    command_exist('pyuic5')
-    command_exist('pyrcc5')
-    command_exist('pip3 freeze | grep Nuitka', False)
-    command_exist('pandoc')
+    
+    if UI:
+        command_exist('pyuic5')
+        command_exist('pyrcc5')
+        
+    if BUILD:    
+        command_exist('pip3 freeze | grep Nuitka', False)
+    
+    if PACKAGE:
+        command_exist('pandoc')
+
 
 # create fresh dist folder
 run('rm -R -f "{DIR}"'.format(DIR=DIR), False, APP.DIR)

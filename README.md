@@ -2,16 +2,16 @@
 
 Gamelist Addon is a graphical desktop app for Linux with the capability to add new custom entries into a gamelist.xml file used by EmulationStation.
 
-Author: Tuncay D.
-License: [MIT License](LICENSE)
-Website: https://thingsiplay.game.blog/gamelist-addon
-Source: https://github.com/thingsiplay/gamelistaddon
+- Author: Tuncay D.
+- License: [MIT License](LICENSE)
+- Website: [https://thingsiplay.game.blog/gamelist-addon](https://thingsiplay.game.blog/gamelist-addon) 
+- Source: [https://github.com/thingsiplay/gamelistaddon](https://github.com/thingsiplay/gamelistaddon) 
 
 ![Screenshot addgame state](img/screen_addgame-thumb.png  "screen-addgame")
 
 ## Introduction
 
-[gamelist.xml](https://retropie.org.uk/docs/EmulationStation/#gamelistxml-edits) gamelist.xml files are databases for the use in [EmulationStation](https://retropie.org.uk/docs/EmulationStation/) EmulationStation, in example in RetroPie. They contain all paths and meta information for each system. Usually those files are created by some sort of [scraper tools](https://retropie.org.uk/docs/Scraper/) scraper tools and do not require any manual editing. However sometimes there are cases when manually editing is required. Editing such files in a text editor has some traps and is just a pain.
+[gamelist.xml](https://retropie.org.uk/docs/EmulationStation/#gamelistxml-edits) files are databases for the use in [EmulationStation](https://retropie.org.uk/docs/EmulationStation/), in example in RetroPie. They contain all paths and meta information for each system. Usually those files are created by some sort of [scraper tools](https://retropie.org.uk/docs/Scraper/) and do not require any manual editing. However sometimes there are cases when manually editing is required. Editing such files in a text editor has some traps and is just a pain.
 
 This app will check for existing entries to and make sure the file is written in correct format. I started this project because there was no application on Linux that fulfill my needs. Also this is a good exercise to me learning more about programming.
 
@@ -36,15 +36,15 @@ As a little bonus, in the app folder is a separate commandline tool **merge.py**
 
 When running Python version directly:
 
-* Python: 3.6.9
-* PyQt5: 5.15.0
+- Python: 3.6.9
+- PyQt5: 5.15.0
 
 Additional requirements when building standalone distribution:
 
-* Nuitka: 0.6.8.4
-* Qt Designer: 5.9.5
-* Pandoc: 1.19.2.4
-* Linux compatible operating system
+- Nuitka: 0.6.8.4
+- Qt Designer: 5.9.5
+- Pandoc: 1.19.2.4
+- Linux compatible operating system
 
 ### GNU / Linux
 
@@ -72,4 +72,4 @@ If you want report a bug or have any questions, head over to the [project's foru
 
 Version 0.1:
 
-* initial release
+- initial release

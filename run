@@ -1,6 +1,15 @@
 #!/bin/bash
 
 cpwd=`pwd`
-cd GamelistAddon
-./GamelistAddon
+
+name=GamelistAddon
+if [ -f "$name".py ]; then
+    "./$name".py
+else
+    if [ -d "$name" ]; then
+        cd "$name"
+        "./$name"
+    fi
+fi
+
 cd "$cpwd"
