@@ -486,7 +486,7 @@ class MainWin(qtw.QMainWindow):
                     self.last_save_file = save_file
 
                     # Create the new combined data by merging both files.                    
-                    self.diff_root = Convert.mergeGamelists(original_root, new_root)
+                    self.diff_root = Convert.mergeGamelists(original_root, new_root, 'u', APP.SOURCE)
                     self.diff_paths, self.diff_names = Convert.gameRoot2pathsAndNames(self.diff_root)
 
                     save_tree = ET.ElementTree()

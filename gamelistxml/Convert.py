@@ -38,42 +38,9 @@ def xmlTree2rootString(xml):
     return xmlroot
 
 # Adds missing games from new ElementTree root into original root. Check is done by path as id.
-# Returns 4 objects: original_root, diff_root, diff_paths, diff_names.
-# Both root objects are ElementTree root objects. The diff_paths and diff_names are regular lists of new added games.
-def OLDmergeGamelists(original_root, new_root):
-    # diff will contain all newly added games.
-    diff_root = ET.fromstring("<?xml version=\"1.0\"?>\n<gameList>\n</gameList>")
-    original_games = original_root.findall('game')
-    new_games = new_root.findall('game')
-    # This will be used to check if a game exist in the original file, by comparing the basename only.
-    original_basenames = []
-    for path in original_root.findall('game/path'):
-        original_basenames.append(os.path.basename(path.text))
-    diff_paths = []
-    diff_names = []
-    # game is an ElementTree Element with all its structure.
-    for game in new_games:
-        path = game.find('path')
-        if path is None:
-            path = ''
-        else:
-            path = path.text
-        # Add the current game to end result, if its path is not matching to the original games list.
-        if len(path) == 0 or os.path.basename(path) not in original_basenames:
-            original_root.append(game)
-            diff_root.append(game)
-            diff_paths.append(path)
-            name = game.find('name')
-            if name is None:
-                diff_names.append('')
-            else:
-                diff_names.append(name.text)
-    indent(original_root)
-    indent(diff_root)
-    return original_root, diff_root, diff_paths, diff_names
-
-
-def mergeGamelists(base_root, add_root):  
+# base_root is manipulated directly.
+# Returns new gameList root object with all new added games only.
+def SIMPLEVERSIONmergeGamelists(base_root, add_root):
     diff_root = ET.fromstring("<?xml version=\"1.0\"?>\n<gameList>\n</gameList>")
     
     # List of paths as a basenames from all games in base_root.
@@ -96,6 +63,77 @@ def mergeGamelists(base_root, add_root):
     indent(base_root)
     indent(diff_root)
     return diff_root
+
+# New version with updates
+def mergeGamelists(base_root, add_root, duplicate='i', source=None):     
+    diff_root = ET.fromstring("<?xml version=\"1.0\"?>\n<gameList>\n</gameList>")
+    
+    # List of paths as a basenames from all games in base_root.
+    base_names = []
+    for path in base_root.findall('game/path'):
+        base_names.append(os.path.basename(path.text))
+        
+    if duplicate == 'i': 
+           
+        for add_game in add_root.findall('game'):
+            path = add_game.find('path')
+            if path is None:
+                path = ''
+            else:
+                path = path.text
+            # Check if new game from add_root is not found in original base_root.
+            if len(path) == 0 or os.path.basename(path) not in base_names:
+                base_root.append(add_game)
+                diff_root.append(add_game)
+                
+    elif duplicate == 'u': 
+           
+        for add_game in add_root.findall('game'):
+            path = add_game.find('path')
+            if path is None:
+                path = ''
+            else:
+                path = path.text            
+            if len(path) > 0 and os.path.basename(path) in base_names:
+                # Game entry exists. Now update each individual tag.
+                
+                # First get a copy and remove it from base. The copy will be
+                # edited and reinserted later.
+                base_game = base_root.find('game/[path="' + path + '"]')
+                base_root.remove(base_game)
+                
+                updated = False
+                for tag in add_game.iter():
+                    # Ignore first tag from iter(), as it is always game.
+                    if tag.tag != 'game':
+                        # Get element from base game based on current tag type.
+                        # In example "path" element. If the original base game
+                        # does have such a tag, remove it.
+                        base_tag = base_game.find(tag.tag)
+                        if base_tag is not None:
+                            base_game.remove(base_tag)
+                        base_game.append(tag)
+                        
+                        # Mark the current game entry as updated, if both tag
+                        # content are different. 
+                        if base_tag.text != tag.text:
+                            updated = True
+                
+                if updated:
+                    if source is not None:
+                        base_game.set('source', source)
+                    diff_root.append(base_game)
+                base_root.append(base_game)
+                    
+            else:
+                # Game entry does not exist. Simply add whole new game.
+                base_root.append(add_game)      
+    else:
+        raise ValueError('Wrong argument value for duplicate in function mergeGamelists(): ' + duplicate)
+    indent(base_root)
+    indent(diff_root)
+    return diff_root
+
 
 def gameRoot2pathsAndNames(games_root): 
     diff_paths = []
