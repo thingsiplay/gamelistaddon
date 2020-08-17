@@ -80,6 +80,16 @@ def mergeGamelists(base_root, add_root, duplicate='i', source=None):
                 # First get a copy and remove it from base. The copy will be
                 # edited and reinserted later.
                 base_game = base_root.find('game/[path="' + path + '"]')
+                # Try harder if not found. Check for basename now.
+                if base_game is None:
+                    for tag in base_root.iter():
+                        if tag.tag == 'game':
+                            game = tag
+                        elif tag.tag == 'path' and tag.text is not None:
+                            if os.path.basename(tag.text) == os.path.basename(path):
+                                base_game = game
+                                break
+                            
                 base_root.remove(base_game)
                 
                 updated = False
@@ -96,9 +106,12 @@ def mergeGamelists(base_root, add_root, duplicate='i', source=None):
                         
                         # Mark the current game entry as updated, if both tag
                         # content are different. 
-                        if base_tag.text != tag.text:
-                            updated = True
-                
+                        try:
+                            if base_tag.text != tag.text:
+                                updated = True
+                        except AttributeError:
+                            pass
+                            
                 if updated:
                     if source is not None:
                         base_game.set('source', source)
