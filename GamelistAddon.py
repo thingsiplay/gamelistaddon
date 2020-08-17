@@ -30,7 +30,7 @@ class MainWin(qtw.QMainWindow):
         self.diff_paths = []
         self.diff_root = None
 
-        # Variables for dublicate check of certain actions.
+        # Variables for duplicate check of certain actions.
         # Used by the method
         self.last_le_releasedate_editingFinished_check = None
         self.last_save_file = None
@@ -360,7 +360,7 @@ class MainWin(qtw.QMainWindow):
     # already exists, then ask the user what to do. The check is done by comparing the basename without directory part
     # in "path". Unless there is no basename, then the strings will be used as it is.
     def b_save_addgame_clicked(self):
-        # The current path of user input will be used as an identification to find dublicate entry. It will compare
+        # The current path of user input will be used as an identification to find duplicate entry. It will compare
         # basename only.
         current_path = self.le_path.text().strip()
         if current_path == '' or len(os.path.basename(current_path)) == 0:
@@ -421,7 +421,7 @@ class MainWin(qtw.QMainWindow):
 
                             returnValue = msgBox.exec()
                             if returnValue == qtw.QMessageBox.Yes:
-                                # Now remove the dublicate game tag element.
+                                # Now remove the duplicate game tag element.
                                 file_xml_root.remove(xml_gameFound)
                         # Append new game entry and write to file. Any existing entry should be removed prior to this.
                         if xml_gameFound is None or returnValue == qtw.QMessageBox.Yes:
@@ -485,11 +485,12 @@ class MainWin(qtw.QMainWindow):
 
                     self.last_save_file = save_file
 
-                    # Create the new combined data by merging both files.
-                    save_root, self.diff_root, self.diff_paths, self.diff_names = Convert.mergeGamelists(original_root, new_root)
+                    # Create the new combined data by merging both files.                    
+                    self.diff_root = Convert.mergeGamelists(original_root, new_root)
+                    self.diff_paths, self.diff_names = Convert.gameRoot2pathsAndNames(self.diff_root)
 
                     save_tree = ET.ElementTree()
-                    save_tree._setroot(save_root)
+                    save_tree._setroot(original_root)
                     try:
                         save_tree.write(save_file, encoding="UTF-8", xml_declaration=None)
                         Convert.prepend_filecontent(save_file, "<?xml version=\"1.0\"?>\n")

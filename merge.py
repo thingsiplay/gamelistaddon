@@ -30,10 +30,13 @@ if __name__ == '__main__':
             os.path.exists(save_file)
         original_root = ET.parse(original_file).getroot()
         new_root = ET.parse(new_file).getroot()
-        save_root, diff_root, diff_paths, diff_names = Convert.mergeGamelists(original_root, new_root)
+                
+        diff_root = Convert.mergeGamelists(original_root, new_root)
+        diff_paths, diff_names = Convert.gameRoot2pathsAndNames(diff_root)
+                
         if args.output is not None:
             save_tree = ET.ElementTree()
-            save_tree._setroot(save_root)
+            save_tree._setroot(original_root)
             save_tree.write(save_file, encoding="UTF-8", xml_declaration=None)
             Convert.prepend_filecontent(save_file, "<?xml version=\"1.0\"?>\n")
         if args.log is not None:
