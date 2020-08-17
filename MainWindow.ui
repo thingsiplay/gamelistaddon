@@ -31,7 +31,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tab_mode">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -733,6 +733,56 @@
            </layout>
           </item>
           <item>
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <property name="spacing">
+             <number>12</number>
+            </property>
+            <item>
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>Duplicates Mode:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="rb_ignore_merge">
+              <property name="text">
+               <string>&amp;Ignore</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="rb_update_merge">
+              <property name="text">
+               <string>Update</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
            <spacer name="verticalSpacer_10">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -757,7 +807,7 @@
              </sizepolicy>
             </property>
             <property name="title">
-             <string>Log: </string>
+             <string>Log:</string>
             </property>
             <layout class="QGridLayout" name="gridLayout_2">
              <item row="6" column="0">
@@ -957,7 +1007,7 @@
      <width>720</width>
      <height>26</height>
     </rect>
-   </property>    
+   </property>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>He&amp;lp</string>
@@ -966,9 +1016,9 @@
     <addaction name="actionAbout"/>
     <addaction name="separator"/>
     <addaction name="actionClose"/>
-   </widget> 
+   </widget>
    <addaction name="menuHelp"/>
-  </widget>   
+  </widget>
   <action name="actionReadme">
    <property name="text">
     <string>&amp;Manual</string>
@@ -976,7 +1026,7 @@
    <property name="menuRole">
     <enum>QAction::ApplicationSpecificRole</enum>
    </property>
-  </action>   
+  </action>
   <action name="actionAbout">
    <property name="text">
     <string>&amp;About</string>

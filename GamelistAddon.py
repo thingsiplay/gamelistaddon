@@ -117,6 +117,9 @@ class MainWin(qtw.QMainWindow):
         self.rb_path_merge = self.findChild(qtw.QRadioButton, 'rb_path_merge')
         self.rb_xml_merge = self.findChild(qtw.QRadioButton, 'rb_xml_merge')
         self.b_savelog_merge = self.findChild(qtw.QPushButton, 'b_savelog_merge')
+        
+        self.rb_ignore_merge = self.findChild(qtw.QRadioButton, 'rb_ignore_merge')
+        self.rb_update_merge = self.findChild(qtw.QRadioButton, 'rb_update_merge')
 
         # Button Widgets handler connection
         self.b_new_addgame.clicked.connect(self.b_new_addgame_clicked)
@@ -132,6 +135,10 @@ class MainWin(qtw.QMainWindow):
         self.rb_name_merge.clicked.connect(self.rb_path_and_name_merge_clicked)
         self.rb_path_merge.clicked.connect(self.rb_path_and_name_merge_clicked)
         self.rb_xml_merge.clicked.connect(self.rb_path_and_name_merge_clicked)
+        
+        self.rb_ignore_merge.clicked.connect(self.rb_ignore_merge_clicked)
+        self.rb_update_merge.clicked.connect(self.rb_update_merge_clicked)
+        
 
         # Groups and Layouts
         self.gb_log_merge = self.findChild(qtw.QGroupBox, 'gb_log_merge')
@@ -154,7 +161,8 @@ class MainWin(qtw.QMainWindow):
         self.tb_original_merge.setStyleSheet(self.style_toolimport)
         self.tb_new_merge.setStyleSheet(self.style_toolimport)
 
-        # Start by disabling the save buttons. If any of the texts is empty, the button will get disabled.
+        # Start by disabling the save buttons and defaults. 
+        # If any of the texts is empty, the button will get disabled.
         self.le_path_textChanged()
         self.le_original_merge_textChanged()
         self.le_new_merge_textChanged()
@@ -178,6 +186,14 @@ class MainWin(qtw.QMainWindow):
         self.close_application()
 
     # Widget handlers
+    
+    def rb_ignore_merge_clicked(self):
+        self.rb_ignore_merge.setChecked(True)
+        self.rb_update_merge.setChecked(False)
+    
+    def rb_update_merge_clicked(self):
+        self.rb_ignore_merge.setChecked(False)
+        self.rb_update_merge.setChecked(True)
 
     def le_path_textChanged(self):
         if self.le_path.text():
@@ -485,8 +501,14 @@ class MainWin(qtw.QMainWindow):
 
                     self.last_save_file = save_file
 
-                    # Create the new combined data by merging both files.                    
-                    self.diff_root = Convert.mergeGamelists(original_root, new_root, 'u', APP.SOURCE)
+                    # Create the new combined data by merging both files.
+                    if self.rb_ignore_merge.isChecked():
+                        mode = 'i'
+                    elif self.rb_update_merge.isChecked():
+                        mode = 'u'
+                    else:
+                        mode = None
+                    self.diff_root = Convert.mergeGamelists(original_root, new_root, mode, APP.SOURCE)
                     self.diff_paths, self.diff_names = Convert.gameRoot2pathsAndNames(self.diff_root)
 
                     save_tree = ET.ElementTree()
@@ -500,7 +522,12 @@ class MainWin(qtw.QMainWindow):
                         self.gb_log_merge.setTitle('Log: ')
                     else:
                         self.update_log_text()
-                        self.gb_log_merge.setTitle( 'Log: ' + str(len(self.diff_paths)) + ' added' )
+                        if mode == 'i':
+                            mode = ' new added'
+                        elif mode == 'u':
+                            mode = ' merged and updated'
+                        mode = mode + ' (' + str(len(original_root)) + ' total)'
+                        self.gb_log_merge.setTitle( 'Log: ' + str(len(self.diff_paths)) + mode )
 
     # Saves the current log information from text view to a file.
     def b_savelog_merge_clicked(self):
@@ -626,7 +653,9 @@ class MainWin(qtw.QMainWindow):
     # Update the current log view in ui with the current selected display mode.
     def update_log_text(self):
         if self.rb_name_merge.isChecked():
-            list = '\n'.join(self.diff_names)
+            list = ''
+            if len(self.diff_names) > 0:
+                list = '\n'.join(self.diff_names)
             # Strangely if the last item is an empty string, it would be cut off while converting with .join(). So
             # just add the last new line in this case.
             if len(self.diff_names) > 0 and self.diff_names[-1] == '':

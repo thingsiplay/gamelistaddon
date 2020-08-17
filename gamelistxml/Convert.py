@@ -40,44 +40,24 @@ def xmlTree2rootString(xml):
 # Adds missing games from new ElementTree root into original root. Check is done by path as id.
 # base_root is manipulated directly.
 # Returns new gameList root object with all new added games only.
-def SIMPLEVERSIONmergeGamelists(base_root, add_root):
-    diff_root = ET.fromstring("<?xml version=\"1.0\"?>\n<gameList>\n</gameList>")
-    
-    # List of paths as a basenames from all games in base_root.
-    base_names = []
-    for path in base_root.findall('game/path'):
-        base_names.append(os.path.basename(path.text))
-    
-    # Go through all new to add game entries.
-    for game in add_root.findall('game'):
-        path = game.find('path')
-        if path is None:
-            path = ''
-        else:
-            path = path.text
-        # Check if new game from add_root is not found in original base_root.
-        if len(path) == 0 or os.path.basename(path) not in base_names:
-            base_root.append(game)
-            diff_root.append(game)
-    
-    indent(base_root)
-    indent(diff_root)
-    return diff_root
-
-# New version with updates
+# Duplicate mode can be "i" for "ignore" or "u" for "update".
+# In ignore mode games from add_root existing in base_root will be ignored.
+# In update mode games from add_root will be mixed and merged with every single tag from base_root.
+# source is simply a string used as "source" attribute, which will be added to every updated game entry.
 def mergeGamelists(base_root, add_root, duplicate='i', source=None):     
     diff_root = ET.fromstring("<?xml version=\"1.0\"?>\n<gameList>\n</gameList>")
     
     # List of paths as a basenames from all games in base_root.
     base_names = []
     for path in base_root.findall('game/path'):
-        base_names.append(os.path.basename(path.text))
+        if path.text is not None:
+            base_names.append(os.path.basename(path.text))
         
     if duplicate == 'i': 
            
         for add_game in add_root.findall('game'):
             path = add_game.find('path')
-            if path is None:
+            if path is None or path.text is None:
                 path = ''
             else:
                 path = path.text
@@ -90,7 +70,7 @@ def mergeGamelists(base_root, add_root, duplicate='i', source=None):
            
         for add_game in add_root.findall('game'):
             path = add_game.find('path')
-            if path is None:
+            if path is None or path.text is None:
                 path = ''
             else:
                 path = path.text            
@@ -141,12 +121,12 @@ def gameRoot2pathsAndNames(games_root):
     if games_root is not None:  
         for game in games_root.findall('game'):
             element = game.find('path')
-            if element is None:
+            if element is None or element.text is None:
                 diff_paths.append('')
             else:
                 diff_paths.append(element.text)
             element = game.find('name')
-            if element is None:
+            if element is None or element.text is None:
                 diff_names.append('')
             else:
                 diff_names.append(element.text)

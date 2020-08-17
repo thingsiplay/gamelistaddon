@@ -18,7 +18,10 @@ if __name__ == '__main__':
     parser.add_argument('--add', '-a', metavar='file', required=True, type=str, help='Gamelist.xml file with new content to add.')
     parser.add_argument('--output', '-o', metavar='file', required=False, type=str, help='Save resulting combined xml as new file. (optional)')
     parser.add_argument('--log', '-l', metavar='file', required=False, type=str, help='Save new added games only as xml log file. (optional)')
-    args = parser.parse_args()
+    parser.add_argument('--duplicate', '-d', metavar='mode', required=False, type=str, 
+                        default='ignore', choices=['ignore', 'update'], 
+                        help='(optional) What to do if game entry exist in base content?\nModes: "ignore" (default), "update"')
+        args = parser.parse_args()
 
     try:
         original_file = args.base
@@ -31,7 +34,13 @@ if __name__ == '__main__':
         original_root = ET.parse(original_file).getroot()
         new_root = ET.parse(new_file).getroot()
                 
-        diff_root = Convert.mergeGamelists(original_root, new_root)
+        if args.duplicate == 'ignore':
+            mode = 'i'
+        elif args.duplicate == 'update':
+            mode = 'u'
+        else:
+            mode = None
+        diff_root = Convert.mergeGamelists(original_root, new_root, mode, APP.SOURCE)
         diff_paths, diff_names = Convert.gameRoot2pathsAndNames(diff_root)
                 
         if args.output is not None:
