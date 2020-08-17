@@ -20,6 +20,7 @@
 /home/pi/RetroPie/roms/gb/game.gb</code></pre>
 <p>is treated as identical game. Currently if a dublication is detected, the user action is limited to ignoring or replacing the whole game entry. The <em>import</em> button will load up the first found entry from a selected gamelist.xml file. Any of the edit fields in the GUI act as af filter for searching. Only one of the active filters need to match, in order to read the entire game entry.</p>
 <p>In the <strong>Merge Gamelists</strong>-mode two XML files must be selected. The first one act as base content to compare against and second file should have new content to add. The order is important. When saving a new output XML file, both input files game entries are compared at basename level (described above). The selected output file will be created from scratch with the content of the input files. The update log view will be populated with all newly added game entries only.</p>
+<p>There are two operational modes: <strong>Ignore</strong> and <strong>Update</strong>. Ignore mode will only add new games which do not exist in base content, basically ignoring duplicates. In Update mode all games from both files are included and every single tag is compared individually. The tags from add content have higher priority. Any merging operation is considered to be an update and listed in the log. It will copy non updated games in its entirety too.</p>
 <p>As a little bonus, in the app folder is a separate commandline tool <strong>merge.py</strong> with merge functionality from the main app. It does not require PyQt5 and could be used for automation or testing. Currently if there is any error, then the program will stop and output <em>ERROR</em> on screen. On success the paths of each newly added game entries are output. Important: On default no files are saved and the original XML files are untouched. Check the options and how to specify an output file with</p>
 <pre><code>./merge.py -h.</code></pre>
 <h2 id="requirements">Requirements</h2>
@@ -40,7 +41,7 @@
 <h3 id="windows-and-macos">Windows and MacOS</h3>
 <p>Currently only Linux is tested and supported. There are no standalone builds for Windows or Mac. The Make script from source code is designed around the tools and scripting capabilities in Linux. The main release build do not need all these stuff and is a pure Python program. You need to install Python 3 and PyQt5 in order to use Gamelist Addon.</p>
 <h2 id="make">Make</h2>
-<pre><code>usage: make.py [-h] [--setup] [--ui] [--build] [--package] [--clean]</code></pre>
+<pre><code>usage: merge.py [-h] [--version] --base file --add file [--output file] [--log file] [--duplicate mode]</code></pre>
 <p>make.py is the script to build all release packages and is only relevant to the source code. It is a custom script written in Python. Running it without arguments will execute all routines. Using at least one argument will disable all other routines and just execute what is defined. All distribution related files are found in a sub folder &quot;dist&quot;. In example:</p>
 <pre><code>./make.py --ui --package</code></pre>
 <p>will only generate the .ui files and the distribution packages for Python only. No binary compilation is created and temporary files are not cleaned up.</p>

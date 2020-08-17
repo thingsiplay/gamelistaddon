@@ -406,7 +406,7 @@ class Ui_MainWindow(object):
         self.l_original_merge.setBuddy(self.le_original_merge)
 
         self.retranslateUi(MainWindow)
-        self.tab_mode.setCurrentIndex(1)
+        self.tab_mode.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -450,7 +450,7 @@ class Ui_MainWindow(object):
         self.label.setText(_translate("MainWindow", "Duplicates Mode:"))
         self.rb_ignore_merge.setText(_translate("MainWindow", "&Ignore"))
         self.rb_update_merge.setText(_translate("MainWindow", "Update"))
-        self.gb_log_merge.setTitle(_translate("MainWindow", "Log: "))
+        self.gb_log_merge.setTitle(_translate("MainWindow", "Log:"))
         self.rb_xml_merge.setText(_translate("MainWindow", "&xml"))
         self.rb_name_merge.setText(_translate("MainWindow", "&name"))
         self.rb_path_merge.setText(_translate("MainWindow", "&path"))

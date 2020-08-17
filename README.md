@@ -28,6 +28,8 @@ is treated as identical game. Currently if a dublication is detected, the user a
 
 In the **Merge Gamelists**-mode two XML files must be selected. The first one act as base content to compare against and second file should have new content to add. The order is important. When saving a new output XML file, both input files game entries are compared at basename level (described above). The selected output file will be created from scratch with the content of the input files. The update log view will be populated with all newly added game entries only. 
 
+There are two operational modes: **Ignore** and **Update**. Ignore mode will only add new games which do not exist in base content, basically ignoring duplicates. In Update mode all games from both files are included and every single tag is compared individually. The tags from add content have higher priority. Any merging operation is considered to be an update and listed in the log. It will copy non updated games in its entirety too.
+
 As a little bonus, in the app folder is a separate commandline tool **merge.py** with merge functionality from the main app. It does not require PyQt5 and could be used for automation or testing. Currently if there is any error, then the program will stop and output *ERROR* on screen. On success the paths of each newly added game entries are output. Important: On default no files are saved and the original XML files are untouched. Check the options and how to specify an output file with
 
 	./merge.py -h.
@@ -56,7 +58,8 @@ Currently only Linux is tested and supported. There are no standalone builds for
 
 ## Make
 
-	usage: make.py [-h] [--setup] [--ui] [--build] [--package] [--clean]
+	usage: merge.py [-h] [--version] --base file --add file [--output file] [--log file] [--duplicate mode]
+
 	
 make.py is the script to build all release packages and is only relevant to the source code. It is a custom script written in Python. Running it without arguments will execute all routines. Using at least one argument will disable all other routines and just execute what is defined. All distribution related files are found in a sub folder "dist". In example:
 

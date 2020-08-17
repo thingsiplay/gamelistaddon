@@ -4,14 +4,14 @@ from gamelistxml import Convert
 from constants import App
 
 import xml.etree.ElementTree as ET
-from os import path
+import os
 import sys
 import argparse
 
 if __name__ == '__main__':
     APP = App.App(__file__)
 
-    parser = argparse.ArgumentParser(prog='merge',
+    parser = argparse.ArgumentParser(prog='merge.py',
         description='merge from ' + APP.NAME + '. Combine two gamelist.xml files to add missing game entries.')
     parser.add_argument('--version', '-v', action='version', version=APP.VERSION)
     parser.add_argument('--base', '-b', metavar='file', required=True, type=str, help='Original gamelist.xml to compare against.')
@@ -21,7 +21,7 @@ if __name__ == '__main__':
     parser.add_argument('--duplicate', '-d', metavar='mode', required=False, type=str, 
                         default='ignore', choices=['ignore', 'update'], 
                         help='(optional) What to do if game entry exist in base content?\nModes: "ignore" (default), "update"')
-        args = parser.parse_args()
+    args = parser.parse_args()
 
     try:
         original_file = args.base
