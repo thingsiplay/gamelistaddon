@@ -139,6 +139,10 @@ class MainWin(qtw.QMainWindow):
         self.cb_rating_settings_merge = self.findChild(qtw.QCheckBox, 'cb_rating_settings_merge')
         self.cb_lastplayed_settings_merge = self.findChild(qtw.QCheckBox, 'cb_lastplayed_settings_merge')
         self.cb_playcount_settings_merge = self.findChild(qtw.QCheckBox, 'cb_playcount_settings_merge')
+        
+        self.b_selectnone_settings_merge = self.findChild(qtw.QPushButton, 'b_selectnone_settings_merge')
+        self.b_selectall_settings_merge = self.findChild(qtw.QPushButton, 'b_selectall_settings_merge')
+        self.b_selecttoggle_settings_merge = self.findChild(qtw.QPushButton, 'b_selecttoggle_settings_merge')
 
         # Button Widgets handler connection
         self.b_new_addgame.clicked.connect(self.b_new_addgame_clicked)
@@ -157,6 +161,10 @@ class MainWin(qtw.QMainWindow):
         
         self.rb_ignore_merge.clicked.connect(self.rb_ignore_merge_clicked)
         self.rb_update_merge.clicked.connect(self.rb_update_merge_clicked)
+        
+        self.b_selectnone_settings_merge.clicked.connect(self.b_selectnone_settings_merge_clicked)
+        self.b_selectall_settings_merge.clicked.connect(self.b_selectall_settings_merge_clicked)
+        self.b_selecttoggle_settings_merge.clicked.connect(self.b_selecttoggle_settings_merge_clicked)
         
         # Groups and Layouts
         self.gb_log_merge = self.findChild(qtw.QGroupBox, 'gb_log_merge')
@@ -285,7 +293,55 @@ class MainWin(qtw.QMainWindow):
             self.last_import_file = file
             self.le_new_merge.setText(file)
 
-            # Actual function to parse gamelist.xml and search for matching content. Each input field with an active content
+    def b_selectnone_settings_merge_clicked(self):                      
+        self.cb_name_settings_merge.setChecked(False)
+        self.cb_path_settings_merge.setChecked(False)
+        self.cb_image_settings_merge.setChecked(False)
+        self.cb_marquee_settings_merge.setChecked(False)
+        self.cb_video_settings_merge.setChecked(False)
+        self.cb_desc_settings_merge.setChecked(False)
+        self.cb_developer_settings_merge.setChecked(False)
+        self.cb_publisher_settings_merge.setChecked(False)
+        self.cb_releasedate_settings_merge.setChecked(False)
+        self.cb_genre_settings_merge.setChecked(False)
+        self.cb_players_settings_merge.setChecked(False)
+        self.cb_rating_settings_merge.setChecked(False)
+        self.cb_lastplayed_settings_merge.setChecked(False)
+        self.cb_playcount_settings_merge.setChecked(False)
+   
+    def b_selectall_settings_merge_clicked(self):                      
+        self.cb_name_settings_merge.setChecked(True)
+        self.cb_path_settings_merge.setChecked(True)
+        self.cb_image_settings_merge.setChecked(True)
+        self.cb_marquee_settings_merge.setChecked(True)
+        self.cb_video_settings_merge.setChecked(True)
+        self.cb_desc_settings_merge.setChecked(True)
+        self.cb_developer_settings_merge.setChecked(True)
+        self.cb_publisher_settings_merge.setChecked(True)
+        self.cb_releasedate_settings_merge.setChecked(True)
+        self.cb_genre_settings_merge.setChecked(True)
+        self.cb_players_settings_merge.setChecked(True)
+        self.cb_rating_settings_merge.setChecked(True)
+        self.cb_lastplayed_settings_merge.setChecked(True)
+        self.cb_playcount_settings_merge.setChecked(True)
+
+    def b_selecttoggle_settings_merge_clicked(self):                      
+        self.cb_name_settings_merge.toggle()
+        self.cb_path_settings_merge.toggle()
+        self.cb_image_settings_merge.toggle()
+        self.cb_marquee_settings_merge.toggle()
+        self.cb_video_settings_merge.toggle()
+        self.cb_desc_settings_merge.toggle()
+        self.cb_developer_settings_merge.toggle()
+        self.cb_publisher_settings_merge.toggle()
+        self.cb_releasedate_settings_merge.toggle()
+        self.cb_genre_settings_merge.toggle()
+        self.cb_players_settings_merge.toggle()
+        self.cb_rating_settings_merge.toggle()
+        self.cb_lastplayed_settings_merge.toggle()
+        self.cb_playcount_settings_merge.toggle()
+
+    # Actual function to parse gamelist.xml and search for matching content. Each input field with an active content
     # will be used to search game. Only one of the filters need to match for a match to be considered successfull. All
     # existing data in the GUIs edit fields will be wiped out and filled with found data.
     # Import button
