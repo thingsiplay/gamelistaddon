@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>640</width>
-    <height>943</height>
+    <height>889</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -676,7 +676,7 @@
              <number>16</number>
             </property>
             <property name="verticalSpacing">
-             <number>19</number>
+             <number>10</number>
             </property>
             <item row="3" column="0" colspan="2">
              <widget class="QLineEdit" name="le_original_merge">
@@ -1076,7 +1076,7 @@
         <item>
          <widget class="QLabel" name="label_3">
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Which tags should be compared and updated?&lt;/p&gt;&lt;p&gt;(&lt;span style=&quot; font-style:italic;&quot;&gt;Note: The unchecked tags are taken from base content without making changes.)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Which tags should be compared and updated?&lt;/p&gt;&lt;p&gt;(&lt;span style=&quot; font-style:italic;&quot;&gt;Note: Unchecked tags are taken from base content without changes.)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="textFormat">
            <enum>Qt::RichText</enum>
@@ -1116,136 +1116,6 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
-           <widget class="QCheckBox" name="cb_path_settings_merge">
-            <property name="text">
-             <string>path</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QCheckBox" name="cb_image_settings_merge">
-            <property name="text">
-             <string>image</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QCheckBox" name="cb_marquee_settings_merge">
-            <property name="text">
-             <string>marquee</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QCheckBox" name="cb_video_settings_merge">
-            <property name="text">
-             <string>video</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="9" column="0">
-           <widget class="QCheckBox" name="cb_releasedate_settings_merge">
-            <property name="text">
-             <string>releasedate</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="10" column="0">
-           <widget class="QCheckBox" name="cb_genre_settings_merge">
-            <property name="text">
-             <string>genre</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="11" column="0">
-           <widget class="QCheckBox" name="cb_players_settings_merge">
-            <property name="text">
-             <string>players</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="12" column="0">
-           <widget class="QCheckBox" name="cb_rating_settings_merge">
-            <property name="text">
-             <string>rating</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="13" column="0">
-           <widget class="QCheckBox" name="cb_lastplayed_settings_merge">
-            <property name="text">
-             <string>lastplayed</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="0">
-           <widget class="QCheckBox" name="cb_publisher_settings_merge">
-            <property name="text">
-             <string>publisher</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="0">
-           <widget class="QCheckBox" name="cb_developer_settings_merge">
-            <property name="text">
-             <string>developer</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="0">
-           <widget class="QCheckBox" name="cb_desc_settings_merge">
-            <property name="text">
-             <string>desc</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="14" column="0">
-           <widget class="QCheckBox" name="cb_playcount_settings_merge">
-            <property name="text">
-             <string>playcount</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="1">
            <widget class="QLabel" name="label_4">
             <property name="enabled">
@@ -1253,6 +1123,16 @@
             </property>
             <property name="text">
              <string>Super Mario World</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="cb_path_settings_merge">
+            <property name="text">
+             <string>path</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -1266,6 +1146,16 @@
             </property>
            </widget>
           </item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="cb_image_settings_merge">
+            <property name="text">
+             <string>image</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
           <item row="3" column="1">
            <widget class="QLabel" name="label_6">
             <property name="enabled">
@@ -1273,6 +1163,16 @@
             </property>
             <property name="text">
              <string>/home/pi/.emulationstation/downloaded_images/snes/Super Mario World (U) [!]-image.jpg</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QCheckBox" name="cb_marquee_settings_merge">
+            <property name="text">
+             <string>marquee</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -1286,6 +1186,16 @@
             </property>
            </widget>
           </item>
+          <item row="5" column="0">
+           <widget class="QCheckBox" name="cb_video_settings_merge">
+            <property name="text">
+             <string>video</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
           <item row="5" column="1">
            <widget class="QLabel" name="label_8">
             <property name="enabled">
@@ -1293,6 +1203,16 @@
             </property>
             <property name="text">
              <string>/home/pi/.emulationstation/downloaded_images/snes/Super Mario World (U) [!]-video.mp4</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QCheckBox" name="cb_desc_settings_merge">
+            <property name="text">
+             <string>desc</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -1306,6 +1226,16 @@
             </property>
            </widget>
           </item>
+          <item row="7" column="0">
+           <widget class="QCheckBox" name="cb_developer_settings_merge">
+            <property name="text">
+             <string>developer</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
           <item row="7" column="1">
            <widget class="QLabel" name="label_10">
             <property name="enabled">
@@ -1313,6 +1243,16 @@
             </property>
             <property name="text">
              <string>Nintendo</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="0">
+           <widget class="QCheckBox" name="cb_publisher_settings_merge">
+            <property name="text">
+             <string>publisher</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -1326,6 +1266,16 @@
             </property>
            </widget>
           </item>
+          <item row="9" column="0">
+           <widget class="QCheckBox" name="cb_releasedate_settings_merge">
+            <property name="text">
+             <string>releasedate</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
           <item row="9" column="1">
            <widget class="QLabel" name="label_12">
             <property name="enabled">
@@ -1333,6 +1283,16 @@
             </property>
             <property name="text">
              <string>19910813</string>
+            </property>
+           </widget>
+          </item>
+          <item row="10" column="0">
+           <widget class="QCheckBox" name="cb_genre_settings_merge">
+            <property name="text">
+             <string>genre</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -1346,6 +1306,16 @@
             </property>
            </widget>
           </item>
+          <item row="11" column="0">
+           <widget class="QCheckBox" name="cb_players_settings_merge">
+            <property name="text">
+             <string>players</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
           <item row="11" column="1">
            <widget class="QLabel" name="label_14">
             <property name="enabled">
@@ -1353,6 +1323,16 @@
             </property>
             <property name="text">
              <string>2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="12" column="0">
+           <widget class="QCheckBox" name="cb_rating_settings_merge">
+            <property name="text">
+             <string>rating</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -1366,6 +1346,16 @@
             </property>
            </widget>
           </item>
+          <item row="13" column="0">
+           <widget class="QCheckBox" name="cb_lastplayed_settings_merge">
+            <property name="text">
+             <string>lastplayed</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
           <item row="13" column="1">
            <widget class="QLabel" name="label_16">
             <property name="enabled">
@@ -1373,6 +1363,16 @@
             </property>
             <property name="text">
              <string>20190831</string>
+            </property>
+           </widget>
+          </item>
+          <item row="14" column="0">
+           <widget class="QCheckBox" name="cb_playcount_settings_merge">
+            <property name="text">
+             <string>playcount</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
             </property>
            </widget>
           </item>

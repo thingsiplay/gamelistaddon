@@ -44,7 +44,10 @@ def xmlTree2rootString(xml):
 # In ignore mode games from add_root existing in base_root will be ignored.
 # In update mode games from add_root will be mixed and merged with every single tag from base_root.
 # source is simply a string used as "source" attribute, which will be added to every updated game entry.
-def mergeGamelists(base_root, add_root, duplicate='i', source=None):     
+def mergeGamelists(base_root, add_root, duplicate='i', source=None, updateonly=None):
+    #if updateonly is None:
+    #    updateonly = ['name', 'path', 'image', 'marquee', 'video', 'desc', 'developer', 'publisher', 
+    #                  'releasedate', 'genre', 'players', 'rating', 'lastplayed', 'playcount',]
     diff_root = ET.fromstring("<?xml version=\"1.0\"?>\n<gameList>\n</gameList>")
     
     # List of paths as a basenames from all games in base_root.
@@ -93,9 +96,10 @@ def mergeGamelists(base_root, add_root, duplicate='i', source=None):
                 base_root.remove(base_game)
                 
                 updated = False
+                # tag is from current new add_game
                 for tag in add_game.iter():
                     # Ignore first tag from iter(), as it is always game.
-                    if tag.tag != 'game':
+                    if tag.tag != 'game' and (updateonly is None or tag.tag in updateonly):
                         # Get element from base game based on current tag type.
                         # In example "path" element. If the original base game
                         # does have such a tag, remove it.
