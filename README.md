@@ -24,28 +24,42 @@ In **Add Game**-mode only the fields with content will be written to the file, b
 	./game.gb
 	/home/pi/RetroPie/roms/gb/game.gb
 	
-is treated as identical game. Currently if a dublication is detected, the user action is limited to ignoring or replacing the whole game entry. The *import* button will load up the first found entry from a selected gamelist.xml file. Any of the edit fields in the GUI act as af filter for searching. Only one of the active filters need to match, in order to read the entire game entry.
+is treated as identical game. Currently if a dublication is detected, the user action is limited to ignoring or replacing the whole game entry. The *import* button will load up the first found entry from a selected gamelist.xml file. Any of the edit fields in the GUI act as af filter for searching. Only one of the active filters need to match, in order to read the entire game entry. A new added game with this function will have an attribute "source" with the content "gamelistaddon", just like a scraper does.
 
 In the **Merge Gamelists**-mode two XML files must be selected. The first one act as base content to compare against and second file should have new content to add. The order is important. When saving a new output XML file, both input files game entries are compared at basename level (described above). The selected output file will be created from scratch with the content of the input files. The update log view will be populated with all newly added game entries only. 
 
-There are two operational modes: **Ignore** and **Update**. Ignore mode will only add new games which do not exist in base content, basically ignoring duplicates. In Update mode all games from both files are included and every single tag is compared individually. The tags from add content have higher priority. Any merging operation is considered to be an update and listed in the log. It will copy non updated games in its entirety too.
+There are two operational modes: *Ignore* and *Update*. Ignore mode will only add new games which do not exist in base content, basically ignoring duplicates. In Update mode all games from both files are included and every single tag is compared individually. The tags from add content have higher priority. Any merging operation is considered to be an update and listed in the log. It will copy non updated games in its entirety too.
 
 As a little bonus, in the app folder is a separate commandline tool **merge.py** with merge functionality from the main app. It does not require PyQt5 and could be used for automation or testing. Currently if there is any error, then the program will stop and output *ERROR* on screen. On success the paths of each newly added game entries are output. Important: On default no files are saved and the original XML files are untouched. Check the options and how to specify an output file with
 
 	./merge.py -h.
 
+### How duplicates are identified
+
+This program uses an unique way of identifying duplicates. It assumes that a rom is appearing only once in the gamelist file. When comparing two different files, one might have a different notation of the directory part in the path. The comparison is done at *basename* only, means the file itself and ignoring that directory part. Here is an example what this means. 
+
+gamelist.xml from user 1:
+
+	<path>./Aero the Acro-Bat 2 (U).smc</path>
+
+gamelist.xml from user 2:
+
+	<path>./roms/snes/Aero the Acro-Bat 2 (U).smc</path>
+
+This game is considered to be a duplicate. *Warning*: If the other file is using an unusual folder, this might cause problems when merging them.
+
 ## Requirements
 
 When running Python version directly:
 
-- Python: 3.6.9
-- PyQt5: 5.15.0
+- Python: 3.6.x
+- PyQt5: 5.15.x
 
 Additional requirements when building standalone distribution:
 
-- Nuitka: 0.6.8.4
-- Qt Designer: 5.9.5
-- Pandoc: 1.19.2.4
+- Nuitka: 0.6.8.x
+- Qt Designer: 5.9.x
+- Pandoc: 1.19.2.x
 - Linux compatible operating system
 
 ### GNU / Linux
@@ -72,6 +86,11 @@ will only generate the .ui files and the distribution packages for Python only. 
 If you want report a bug or have any questions, head over to the [project's forum thread](https://retropie.org.uk/forum/topic/27466/gamelist-addon-an-assist-tool-to-manually-add-new-game-entries)  in RetroPie or [leave me a message](https://thingsiplay.game.blog/contact/) on my contact page.
 
 ## Changelog
+
+Version 0.2:
+
+- new update feature in merge mode
+- bug fixes
 
 Version 0.1:
 

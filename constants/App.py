@@ -13,7 +13,7 @@ class App():
         # Meta information
         self.NAME = 'Gamelist Addon'
         self.SOURCE = 'gamelistaddon'
-        self.VERSION = '0.1'
+        self.VERSION = '0.2'
         self.CREATOR = 'Tuncay D.'
         self.DESC = 'Add new game entries to gamelist.xml files created for EmulationStation.'
         self.LICENSE = """Copyright (C) 2020 Tuncay D

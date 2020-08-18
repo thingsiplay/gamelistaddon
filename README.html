@@ -18,22 +18,29 @@
 <p>In <strong>Add Game</strong>-mode only the fields with content will be written to the file, but <em>path</em> is required. The game entry can be added to an existing gamelist.xml or saved as a new file created from scratch. When overwriting to an existing file, a check if the game is already existing will be made. The comparison is done at basename level of the path field, ignoring the directory portion. This allows for detecting any game, regardless of how the path is noted (in example relative notion). In example:</p>
 <pre><code>./game.gb
 /home/pi/RetroPie/roms/gb/game.gb</code></pre>
-<p>is treated as identical game. Currently if a dublication is detected, the user action is limited to ignoring or replacing the whole game entry. The <em>import</em> button will load up the first found entry from a selected gamelist.xml file. Any of the edit fields in the GUI act as af filter for searching. Only one of the active filters need to match, in order to read the entire game entry.</p>
+<p>is treated as identical game. Currently if a dublication is detected, the user action is limited to ignoring or replacing the whole game entry. The <em>import</em> button will load up the first found entry from a selected gamelist.xml file. Any of the edit fields in the GUI act as af filter for searching. Only one of the active filters need to match, in order to read the entire game entry. A new added game with this function will have an attribute &quot;source&quot; with the content &quot;gamelistaddon&quot;, just like a scraper does.</p>
 <p>In the <strong>Merge Gamelists</strong>-mode two XML files must be selected. The first one act as base content to compare against and second file should have new content to add. The order is important. When saving a new output XML file, both input files game entries are compared at basename level (described above). The selected output file will be created from scratch with the content of the input files. The update log view will be populated with all newly added game entries only.</p>
-<p>There are two operational modes: <strong>Ignore</strong> and <strong>Update</strong>. Ignore mode will only add new games which do not exist in base content, basically ignoring duplicates. In Update mode all games from both files are included and every single tag is compared individually. The tags from add content have higher priority. Any merging operation is considered to be an update and listed in the log. It will copy non updated games in its entirety too.</p>
+<p>There are two operational modes: <em>Ignore</em> and <em>Update</em>. Ignore mode will only add new games which do not exist in base content, basically ignoring duplicates. In Update mode all games from both files are included and every single tag is compared individually. The tags from add content have higher priority. Any merging operation is considered to be an update and listed in the log. It will copy non updated games in its entirety too.</p>
 <p>As a little bonus, in the app folder is a separate commandline tool <strong>merge.py</strong> with merge functionality from the main app. It does not require PyQt5 and could be used for automation or testing. Currently if there is any error, then the program will stop and output <em>ERROR</em> on screen. On success the paths of each newly added game entries are output. Important: On default no files are saved and the original XML files are untouched. Check the options and how to specify an output file with</p>
 <pre><code>./merge.py -h.</code></pre>
+<h3 id="how-duplicates-are-identified">How duplicates are identified</h3>
+<p>This program uses an unique way of identifying duplicates. It assumes that a rom is appearing only once in the gamelist file. When comparing two different files, one might have a different notation of the directory part in the path. The comparison is done at <em>basename</em> only, means the file itself and ignoring that directory part. Here is an example what this means.</p>
+<p>gamelist.xml from user 1:</p>
+<pre><code>&lt;path&gt;./Aero the Acro-Bat 2 (U).smc&lt;/path&gt;</code></pre>
+<p>gamelist.xml from user 2:</p>
+<pre><code>&lt;path&gt;./roms/snes/Aero the Acro-Bat 2 (U).smc&lt;/path&gt;</code></pre>
+<p>This game is considered to be a duplicate. <em>Warning</em>: If the other file is using an unusual folder, this might cause problems when merging them.</p>
 <h2 id="requirements">Requirements</h2>
 <p>When running Python version directly:</p>
 <ul>
-<li>Python: 3.6.9</li>
-<li>PyQt5: 5.15.0</li>
+<li>Python: 3.6.x</li>
+<li>PyQt5: 5.15.x</li>
 </ul>
 <p>Additional requirements when building standalone distribution:</p>
 <ul>
-<li>Nuitka: 0.6.8.4</li>
-<li>Qt Designer: 5.9.5</li>
-<li>Pandoc: 1.19.2.4</li>
+<li>Nuitka: 0.6.8.x</li>
+<li>Qt Designer: 5.9.x</li>
+<li>Pandoc: 1.19.2.x</li>
 <li>Linux compatible operating system</li>
 </ul>
 <h3 id="gnu-linux">GNU / Linux</h3>
@@ -48,6 +55,11 @@
 <h2 id="feedback">Feedback</h2>
 <p>If you want report a bug or have any questions, head over to the <a href="https://retropie.org.uk/forum/topic/27466/gamelist-addon-an-assist-tool-to-manually-add-new-game-entries">project's forum thread</a> in RetroPie or <a href="https://thingsiplay.game.blog/contact/">leave me a message</a> on my contact page.</p>
 <h2 id="changelog">Changelog</h2>
+<p>Version 0.2:</p>
+<ul>
+<li>new update feature in merge mode</li>
+<li>bug fixes</li>
+</ul>
 <p>Version 0.1:</p>
 <ul>
 <li>initial release</li>

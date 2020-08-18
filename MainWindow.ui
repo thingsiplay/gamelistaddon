@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>720</width>
-    <height>910</height>
+    <height>956</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -104,8 +104,11 @@
             <property name="cursor">
              <cursorShape>PointingHandCursor</cursorShape>
             </property>
+            <property name="toolTip">
+             <string>Clear the entry fields and start all over again.</string>
+            </property>
             <property name="text">
-             <string> &amp;New</string>
+             <string> &amp;Clear</string>
             </property>
             <property name="icon">
              <iconset resource="images.qrc">
@@ -135,6 +138,9 @@
             </property>
             <property name="cursor">
              <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip">
+             <string>Load up and copy a game entry. Any of the fields above are used as filters.</string>
             </property>
             <property name="text">
              <string> Imp&amp;ort</string>
@@ -184,6 +190,9 @@
             <property name="cursor">
              <cursorShape>PointingHandCursor</cursorShape>
             </property>
+            <property name="toolTip">
+             <string>The XML representation of this game entry</string>
+            </property>
             <property name="text">
              <string> Previe&amp;w</string>
             </property>
@@ -205,12 +214,11 @@
          <widget class="QLabel" name="l_pagetitle_addgame">
           <property name="font">
            <font>
-            <pointsize>12</pointsize>
             <italic>true</italic>
            </font>
           </property>
           <property name="text">
-           <string>Add a game entry to an existing or new gamelist.xml file.</string>
+           <string>Add a single game entry to an existing or new gamelist.xml file.</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -567,6 +575,9 @@
           <property name="focusPolicy">
            <enum>Qt::WheelFocus</enum>
           </property>
+          <property name="toolTip">
+           <string>Convert to XML game entry and add output to gamelist.xml file.</string>
+          </property>
           <property name="text">
            <string> &amp;Save to gamelist…</string>
           </property>
@@ -638,6 +649,9 @@
           </property>
           <property name="cursor">
            <cursorShape>OpenHandCursor</cursorShape>
+          </property>
+          <property name="toolTip">
+           <string>Start merging and save output to gamelist.xml file format.</string>
           </property>
           <property name="text">
            <string> &amp;Save to gamelist…</string>
@@ -752,6 +766,9 @@
             </item>
             <item>
              <widget class="QLabel" name="label">
+              <property name="toolTip">
+               <string>What to do when same game is detected?</string>
+              </property>
               <property name="text">
                <string>Duplicates Mode:</string>
               </property>
@@ -759,6 +776,9 @@
             </item>
             <item>
              <widget class="QRadioButton" name="rb_ignore_merge">
+              <property name="toolTip">
+               <string>Use game from Base content</string>
+              </property>
               <property name="text">
                <string>&amp;Ignore</string>
               </property>
@@ -772,6 +792,9 @@
             </item>
             <item>
              <widget class="QRadioButton" name="rb_update_merge">
+              <property name="toolTip">
+               <string>Merge both games and each of their tags. Add content has higher priority.</string>
+              </property>
               <property name="text">
                <string>Update</string>
               </property>
@@ -805,6 +828,9 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Log shows changes or additions only. Output gamelist file contains all games.</string>
             </property>
             <property name="title">
              <string>Log:</string>
@@ -896,7 +922,6 @@
          <widget class="QLabel" name="l_pagetitle_merge">
           <property name="font">
            <font>
-            <pointsize>12</pointsize>
             <italic>true</italic>
            </font>
           </property>
@@ -958,6 +983,9 @@
             </property>
             <property name="cursor">
              <cursorShape>OpenHandCursor</cursorShape>
+            </property>
+            <property name="toolTip">
+             <string>Save current Log view to file.</string>
             </property>
             <property name="text">
              <string> Save &amp;log</string>
