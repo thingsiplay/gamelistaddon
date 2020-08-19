@@ -1118,8 +1118,14 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip">
+             <string>Update all tags</string>
+            </property>
             <property name="text">
-             <string>Use All</string>
+             <string>All</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -1133,6 +1139,12 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip">
+             <string>Enable tags to update</string>
             </property>
             <property name="text">
              <string>&amp;Custom</string>
@@ -1158,6 +1170,9 @@
           <property name="alignment">
            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
           </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
           <layout class="QGridLayout" name="gridLayout_6">
            <property name="horizontalSpacing">
             <number>32</number>
@@ -1182,6 +1197,9 @@
               </property>
               <item row="0" column="0">
                <widget class="QCheckBox" name="cb_path_settings_merge">
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>path</string>
                 </property>
@@ -1192,6 +1210,9 @@
               </item>
               <item row="1" column="0">
                <widget class="QCheckBox" name="cb_image_settings_merge">
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>image</string>
                 </property>
@@ -1202,6 +1223,9 @@
               </item>
               <item row="2" column="0">
                <widget class="QCheckBox" name="cb_marquee_settings_merge">
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>marquee</string>
                 </property>
@@ -1212,6 +1236,9 @@
               </item>
               <item row="3" column="0">
                <widget class="QCheckBox" name="cb_video_settings_merge">
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>video</string>
                 </property>
@@ -1222,6 +1249,9 @@
               </item>
               <item row="4" column="0">
                <widget class="QCheckBox" name="cb_thumbnail_settings_merge">
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>thumbnail</string>
                 </property>
@@ -1259,6 +1289,9 @@
               </property>
               <item row="0" column="0">
                <widget class="QCheckBox" name="cb_name_settings_merge">
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>name</string>
                 </property>
@@ -1269,6 +1302,9 @@
               </item>
               <item row="1" column="0">
                <widget class="QCheckBox" name="cb_sortname_settings_merge">
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>sortname</string>
                 </property>
@@ -1279,6 +1315,9 @@
               </item>
               <item row="2" column="0">
                <widget class="QCheckBox" name="cb_desc_settings_merge">
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>desc</string>
                 </property>
@@ -1289,6 +1328,9 @@
               </item>
               <item row="3" column="0">
                <widget class="QCheckBox" name="cb_developer_settings_merge">
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>developer</string>
                 </property>
@@ -1299,6 +1341,9 @@
               </item>
               <item row="4" column="0">
                <widget class="QCheckBox" name="cb_publisher_settings_merge">
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>publisher</string>
                 </property>
@@ -1309,6 +1354,9 @@
               </item>
               <item row="5" column="0">
                <widget class="QCheckBox" name="cb_releasedate_settings_merge">
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>releasedate</string>
                 </property>
@@ -1319,6 +1367,9 @@
               </item>
               <item row="6" column="0">
                <widget class="QCheckBox" name="cb_genre_settings_merge">
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>genre</string>
                 </property>
@@ -1329,6 +1380,9 @@
               </item>
               <item row="7" column="0">
                <widget class="QCheckBox" name="cb_players_settings_merge">
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>players</string>
                 </property>
@@ -1360,6 +1414,9 @@
               </property>
               <item row="2" column="0">
                <widget class="QCheckBox" name="cb_rating_settings_merge">
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>rating</string>
                 </property>
@@ -1370,6 +1427,9 @@
               </item>
               <item row="3" column="0">
                <widget class="QCheckBox" name="cb_favorite_settings_merge">
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>favorite</string>
                 </property>
@@ -1380,6 +1440,9 @@
               </item>
               <item row="4" column="0">
                <widget class="QCheckBox" name="cb_hidden_settings_merge">
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>hidden</string>
                 </property>
@@ -1390,6 +1453,9 @@
               </item>
               <item row="5" column="0">
                <widget class="QCheckBox" name="cb_kidgame_settings_merge">
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>kidgame</string>
                 </property>
@@ -1400,6 +1466,9 @@
               </item>
               <item row="7" column="0">
                <widget class="QCheckBox" name="cb_lastplayed_settings_merge">
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>lastplayed</string>
                 </property>
@@ -1410,6 +1479,9 @@
               </item>
               <item row="8" column="0">
                <widget class="QCheckBox" name="cb_playcount_settings_merge">
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>playcount</string>
                 </property>
@@ -1462,6 +1534,9 @@
             <property name="cursor">
              <cursorShape>PointingHandCursor</cursorShape>
             </property>
+            <property name="toolTip">
+             <string>Uncheck all tags</string>
+            </property>
             <property name="text">
              <string> Select &amp;None</string>
             </property>
@@ -1493,6 +1568,9 @@
             </property>
             <property name="cursor">
              <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip">
+             <string>Check all tags</string>
             </property>
             <property name="text">
              <string> Select &amp;All</string>
@@ -1561,6 +1639,9 @@
            <font>
             <pointsize>16</pointsize>
            </font>
+          </property>
+          <property name="toolTip">
+           <string>Not available in settings</string>
           </property>
           <property name="text">
            <string> Save to gamelist…</string>
