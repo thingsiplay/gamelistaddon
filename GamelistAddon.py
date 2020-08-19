@@ -124,7 +124,13 @@ class MainWin(qtw.QMainWindow):
         
         self.rb_ignore_merge = self.findChild(qtw.QRadioButton, 'rb_ignore_merge')
         self.rb_update_merge = self.findChild(qtw.QRadioButton, 'rb_update_merge')
-              
+        
+        self.rb_useall_settings_merge = self.findChild(qtw.QRadioButton, 'rb_useall_settings_merge')
+        self.rb_usecustom_settings_merge = self.findChild(qtw.QRadioButton, 'rb_usecustom_settings_merge')
+        
+        self.b_selectnone_settings_merge = self.findChild(qtw.QPushButton, 'b_selectnone_settings_merge')
+        self.b_selectall_settings_merge = self.findChild(qtw.QPushButton, 'b_selectall_settings_merge')
+        
         self.cb_name_settings_merge = self.findChild(qtw.QCheckBox, 'cb_name_settings_merge')
         self.cb_path_settings_merge = self.findChild(qtw.QCheckBox, 'cb_path_settings_merge')
         self.cb_image_settings_merge = self.findChild(qtw.QCheckBox, 'cb_image_settings_merge')
@@ -139,10 +145,11 @@ class MainWin(qtw.QMainWindow):
         self.cb_rating_settings_merge = self.findChild(qtw.QCheckBox, 'cb_rating_settings_merge')
         self.cb_lastplayed_settings_merge = self.findChild(qtw.QCheckBox, 'cb_lastplayed_settings_merge')
         self.cb_playcount_settings_merge = self.findChild(qtw.QCheckBox, 'cb_playcount_settings_merge')
-        
-        self.b_selectnone_settings_merge = self.findChild(qtw.QPushButton, 'b_selectnone_settings_merge')
-        self.b_selectall_settings_merge = self.findChild(qtw.QPushButton, 'b_selectall_settings_merge')
-        self.b_selecttoggle_settings_merge = self.findChild(qtw.QPushButton, 'b_selecttoggle_settings_merge')
+        self.cb_sortname_settings_merge = self.findChild(qtw.QCheckBox, 'cb_sortname_settings_merge')
+        self.cb_thumbnail_settings_merge = self.findChild(qtw.QCheckBox, 'cb_thumbnail_settings_merge')
+        self.cb_favorite_settings_merge = self.findChild(qtw.QCheckBox, 'cb_favorite_settings_merge')
+        self.cb_hidden_settings_merge = self.findChild(qtw.QCheckBox, 'cb_hidden_settings_merge')
+        self.cb_kidgame_settings_merge = self.findChild(qtw.QCheckBox, 'cb_kidgame_settings_merge')
 
         # Button Widgets handler connection
         self.b_new_addgame.clicked.connect(self.b_new_addgame_clicked)
@@ -162,12 +169,15 @@ class MainWin(qtw.QMainWindow):
         self.rb_ignore_merge.clicked.connect(self.rb_ignore_merge_clicked)
         self.rb_update_merge.clicked.connect(self.rb_update_merge_clicked)
         
+        self.rb_useall_settings_merge.clicked.connect(self.rb_useall_settings_merge_clicked)
+        self.rb_usecustom_settings_merge.clicked.connect(self.rb_usecustom_settings_merge_clicked)
+        
         self.b_selectnone_settings_merge.clicked.connect(self.b_selectnone_settings_merge_clicked)
         self.b_selectall_settings_merge.clicked.connect(self.b_selectall_settings_merge_clicked)
-        self.b_selecttoggle_settings_merge.clicked.connect(self.b_selecttoggle_settings_merge_clicked)
         
         # Groups and Layouts
         self.gb_log_merge = self.findChild(qtw.QGroupBox, 'gb_log_merge')
+        self.gb_custom_settings_merge = self.findChild(qtw.QGroupBox, 'gb_custom_settings_merge')
 
         # Style sheets defaults
         self.style_save = 'QPushButton{ background: azure; color: blue; }'
@@ -195,7 +205,7 @@ class MainWin(qtw.QMainWindow):
         self.rb_ignore_merge_clicked()
         self.update_log_text()
         self.statusbar.showMessage('Ready.')
-
+        
         # Show Window
         self.setWindowTitle(APP.NAME + ' v' + APP.VERSION)
         self.setWindowIcon(qtg.QIcon(':/Icons/img/winkemojis-wink.svg'))
@@ -213,6 +223,12 @@ class MainWin(qtw.QMainWindow):
         self.close_application()
 
     # Widget handlers
+    
+    def rb_useall_settings_merge_clicked(self):
+        self.gb_custom_settings_merge.setEnabled(False)
+    
+    def rb_usecustom_settings_merge_clicked(self):
+        self.gb_custom_settings_merge.setEnabled(True)
     
     def rb_ignore_merge_clicked(self):
         self.rb_ignore_merge.setChecked(True)
@@ -308,6 +324,11 @@ class MainWin(qtw.QMainWindow):
         self.cb_rating_settings_merge.setChecked(False)
         self.cb_lastplayed_settings_merge.setChecked(False)
         self.cb_playcount_settings_merge.setChecked(False)
+        self.cb_sortname_settings_merge.setChecked(False)
+        self.cb_thumbnail_settings_merge.setChecked(False)
+        self.cb_favorite_settings_merge.setChecked(False)
+        self.cb_hidden_settings_merge.setChecked(False)
+        self.cb_kidgame_settings_merge.setChecked(False)
    
     def b_selectall_settings_merge_clicked(self):                      
         self.cb_name_settings_merge.setChecked(True)
@@ -324,22 +345,11 @@ class MainWin(qtw.QMainWindow):
         self.cb_rating_settings_merge.setChecked(True)
         self.cb_lastplayed_settings_merge.setChecked(True)
         self.cb_playcount_settings_merge.setChecked(True)
-
-    def b_selecttoggle_settings_merge_clicked(self):                      
-        self.cb_name_settings_merge.toggle()
-        self.cb_path_settings_merge.toggle()
-        self.cb_image_settings_merge.toggle()
-        self.cb_marquee_settings_merge.toggle()
-        self.cb_video_settings_merge.toggle()
-        self.cb_desc_settings_merge.toggle()
-        self.cb_developer_settings_merge.toggle()
-        self.cb_publisher_settings_merge.toggle()
-        self.cb_releasedate_settings_merge.toggle()
-        self.cb_genre_settings_merge.toggle()
-        self.cb_players_settings_merge.toggle()
-        self.cb_rating_settings_merge.toggle()
-        self.cb_lastplayed_settings_merge.toggle()
-        self.cb_playcount_settings_merge.toggle()
+        self.cb_sortname_settings_merge.setChecked(True)
+        self.cb_thumbnail_settings_merge.setChecked(True)
+        self.cb_favorite_settings_merge.setChecked(True)
+        self.cb_hidden_settings_merge.setChecked(True)
+        self.cb_kidgame_settings_merge.setChecked(True)
 
     # Actual function to parse gamelist.xml and search for matching content. Each input field with an active content
     # will be used to search game. Only one of the filters need to match for a match to be considered successfull. All
@@ -575,8 +585,8 @@ class MainWin(qtw.QMainWindow):
                     # Add extension in case it is missing and the file does not exist.
                     if os.path.splitext(save_file)[1] == '' and not os.path.exists(save_file):
                         save_file = save_file + '.xml'
-
                     self.last_save_file = save_file
+                    
                     updateonly = self.create_list_from_gui_updateonly()
 
                     # Create the new combined data by merging both files.
@@ -586,6 +596,7 @@ class MainWin(qtw.QMainWindow):
                         mode = 'u'
                     else:
                         mode = None
+                        
                     self.diff_root = Convert.mergeGamelists(original_root, new_root, mode, APP.SOURCE, updateonly)
                     self.diff_paths, self.diff_names = Convert.gameRoot2pathsAndNames(self.diff_root)
 
@@ -712,37 +723,57 @@ class MainWin(qtw.QMainWindow):
         if not self.le_rating.text() == '':
             d['rating'] = escape( self.le_rating.text().strip() )
         return d
-
+    
+    # Returns a list with all active tags in settings for merge update. 
+    # None just means all and should be treated as such. This is a shortcut.
     def create_list_from_gui_updateonly(self):
         l = []
-        if self.cb_name_settings_merge.isChecked():
-            l.append('name')
-        if self.cb_path_settings_merge.isChecked():
-            l.append('path')
-        if self.cb_image_settings_merge.isChecked():
-            l.append('image')
-        if self.cb_marquee_settings_merge.isChecked():
-            l.append('marquee')
-        if self.cb_video_settings_merge.isChecked():
-            l.append('video')
-        if self.cb_desc_settings_merge.isChecked():
-            l.append('desc')
-        if self.cb_developer_settings_merge.isChecked():
-            l.append('developer')
-        if self.cb_publisher_settings_merge.isChecked():
-            l.append('publisher')
-        if self.cb_releasedate_settings_merge.isChecked():
-            l.append('releasedate')
-        if self.cb_genre_settings_merge.isChecked():
-            l.append('genre')
-        if self.cb_players_settings_merge.isChecked():
-            l.append('players')
-        if self.cb_rating_settings_merge.isChecked():
-            l.append('rating')
-        if self.cb_lastplayed_settings_merge.isChecked():
-            l.append('lastplayed')
-        if self.cb_playcount_settings_merge.isChecked():
-            l.append('playcount')
+        if self.rb_useall_settings_merge.isChecked():
+            l = None
+        else:
+            if self.cb_name_settings_merge.isChecked():
+                l.append('name')
+            if self.cb_path_settings_merge.isChecked():
+                l.append('path')
+            if self.cb_image_settings_merge.isChecked():
+                l.append('image')
+            if self.cb_marquee_settings_merge.isChecked():
+                l.append('marquee')
+            if self.cb_video_settings_merge.isChecked():
+                l.append('video')
+            if self.cb_desc_settings_merge.isChecked():
+                l.append('desc')
+            if self.cb_developer_settings_merge.isChecked():
+                l.append('developer')
+            if self.cb_publisher_settings_merge.isChecked():
+                l.append('publisher')
+            if self.cb_releasedate_settings_merge.isChecked():
+                l.append('releasedate')
+            if self.cb_genre_settings_merge.isChecked():
+                l.append('genre')
+            if self.cb_players_settings_merge.isChecked():
+                l.append('players')
+            if self.cb_rating_settings_merge.isChecked():
+                l.append('rating')
+            if self.cb_lastplayed_settings_merge.isChecked():
+                l.append('lastplayed')
+            if self.cb_playcount_settings_merge.isChecked():
+                l.append('playcount')
+            if self.cb_sortname_settings_merge.isChecked():
+                l.append('sortname')
+            if self.cb_thumbnail_settings_merge.isChecked():
+                l.append('thumbnail')
+            if self.cb_favorite_settings_merge.isChecked():
+                l.append('favorite')
+            if self.cb_hidden_settings_merge.isChecked():
+                l.append('hidden')
+            if self.cb_kidgame_settings_merge.isChecked():
+                l.append('kidgame')
+            # If all tags are selected, then default to None. None should be treated
+            # as all. Very important to changes the number when adding new tags to
+            # Settings Merge Update.
+            if len(l) == 19:
+                l = None
         return l
         
     # Delete all data in the input fields of the GUI.

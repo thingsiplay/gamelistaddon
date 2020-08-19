@@ -28,9 +28,11 @@ is treated as identical game. Currently if a dublication is detected, the user a
 
 In the **Merge Gamelists**-mode two XML files must be selected. The first one act as base content to compare against and second file should have new content to add. The order is important. When saving a new output XML file, both input files game entries are compared at basename level (described above). The selected output file will be created from scratch with the content of the input files. The update log view will be populated with all newly added game entries only. 
 
-There are two operational modes: *Ignore* and *Update*. Ignore mode will only add new games which do not exist in base content, basically ignoring duplicates. In Update mode all games from both files are included and every single tag is compared individually. The tags from add content have higher priority. Any merging operation is considered to be an update and listed in the log. It will copy non updated games in its entirety too.
+There are two merge modes: **Ignore** and **Update**. Ignore mode will only add new games which do not exist in base content, basically ignoring duplicates. In Update mode all games from both files are included and every single tag is compared individually. The tags from add content have higher priority. Any merging operation is considered to be an update and listed in the log. It will copy non updated games in its entirety too.
 
-As a little bonus, in the app folder is a separate commandline tool **merge.py** with merge functionality from the main app. It does not require PyQt5 and could be used for automation or testing. Currently if there is any error, then the program will stop and output *ERROR* on screen. On success the paths of each newly added game entries are output. Important: On default no files are saved and the original XML files are untouched. Check the options and how to specify an output file with
+Once Update mode is activated, a new tab **Settings Merge Update** will appear. In this view every single tag like *name* or *lastplayed* can be individually selected. Only those selected tags will be compared between base content data and add content data when using the update functionality. That means, if the tag lastplayed is found in add content, then it will be used in new file. Otherwise it defaults to lastplayed from base content. Any unchecked tag will be taken from base content without any changes.
+
+In the app folder is a separate commandline tool **merge.py** with merge functionality from the main app. It does not require PyQt5 and could be used for automation or testing. Currently if there is any error, then the program will stop and output *ERROR* on screen. On success the paths of each newly added game entries are output. Important: On default no files are saved and the original XML files are untouched. Check the options and how to specify an output file with
 
 	./merge.py -h.
 
@@ -86,6 +88,9 @@ will only generate the .ui files and the distribution packages for Python only. 
 If you want report a bug or have any questions, head over to the [project's forum thread](https://retropie.org.uk/forum/topic/27466/gamelist-addon-an-assist-tool-to-manually-add-new-game-entries)  in RetroPie or [leave me a message](https://thingsiplay.game.blog/contact/) on my contact page.
 
 ## Changelog
+Version 0.3:
+
+- new settings for merge update mode, limit changes/updates to selected tags only
 
 Version 0.2:
 
