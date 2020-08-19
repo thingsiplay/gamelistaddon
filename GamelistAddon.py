@@ -83,6 +83,8 @@ class MainWin(qtw.QMainWindow):
         self.le_genre = self.findChild(qtw.QLineEdit, 'le_genre')
         self.le_players = self.findChild(qtw.QLineEdit, 'le_players')
         self.le_rating = self.findChild(qtw.QLineEdit, 'le_rating')
+        self.le_sortname = self.findChild(qtw.QLineEdit, 'le_sortname')
+        self.le_thumbnail = self.findChild(qtw.QLineEdit, 'le_thumbnail')
 
         self.le_original_merge = self.findChild(qtw.QLineEdit, 'le_original_merge')
         self.le_new_merge = self.findChild(qtw.QLineEdit, 'le_new_merge')
@@ -109,6 +111,10 @@ class MainWin(qtw.QMainWindow):
         self.le_rating.setValidator(input_validator)
 
         # Buttons and Checkbox Widgets
+        self.cb_favorite = self.findChild(qtw.QCheckBox, 'cb_favorite')
+        self.cb_hidden = self.findChild(qtw.QCheckBox, 'cb_hidden')
+        self.cb_kidgame = self.findChild(qtw.QCheckBox, 'cb_kidgame')
+        
         self.b_new_addgame = self.findChild(qtw.QPushButton, 'b_new_addgame')
         self.b_import_addgame = self.findChild(qtw.QPushButton, 'b_import_addgame')
         self.b_preview_addgame = self.findChild(qtw.QPushButton, 'b_preview_addgame')
@@ -196,6 +202,9 @@ class MainWin(qtw.QMainWindow):
         self.b_new_addgame.setStyleSheet(self.style_delete)
         self.tb_original_merge.setStyleSheet(self.style_toolimport)
         self.tb_new_merge.setStyleSheet(self.style_toolimport)
+        
+        self.b_selectnone_settings_merge.setStyleSheet(self.style_delete)
+        self.b_selectall_settings_merge.setStyleSheet(self.style_delete)
 
         # Start by disabling the save buttons and defaults. 
         # If any of the texts is empty, the button will get disabled.
@@ -357,12 +366,27 @@ class MainWin(qtw.QMainWindow):
     # Import button
     def fill_guiedits_by_xml(self, xml_file):
         active_filters = self.create_dict_from_gui()
+        # remove bool filters, as they do not work currently
+        try:
+            active_filters.pop('favorite')
+        except KeyError:
+            pass        
+        try:
+            active_filters.pop('hidden')
+        except KeyError:
+            pass        
+        try:
+            active_filters.pop('kidgame')
+        except KeyError:
+            pass
+        
         try:
             xml_root = ET.parse(xml_file).getroot()
         except ET.ParseError as error:
             xml_root = None
             self.showErrorMessage('Error! Could not parse gamelist XML file '
                                     + str(error.position) +  ':\n' + xml_file, 'Critical', 'Could not read file.')
+        
         xml_gameFound = None
         if xml_root is not None:
             # Check if user made any input in the edit fields.
@@ -388,28 +412,14 @@ class MainWin(qtw.QMainWindow):
                     # Emd of "for game_element"
                     if xml_gameFound:
                         break
-                    # The following out commented lines with "#~" is the same algorithm as above, but all active
-                    # filters must match on a game.
-                    '''
-                    #~number_of_filters = len(active_filters)
-                    #~matches = 0
-                    #~for filter_name in active_filters:
-                        #~if game_element.findtext(filter_name) is not None and active_filters[filter_name] in unescape(game_element.findtext(filter_name)):
-                            #~matches = matches + 1
-                        #~else:
-                            #~matches = 0
-                            #~break
-                    #~if matches >= number_of_filters:
-                        #~xml_gameFound = game_element
-                        #~break
-                    '''
             # End of "if len(active_filters)". No filter set in gui. Get first found entry from xml.
             else:
                 xml_gameFound = xml_root.find('game')
                 self.statusbar.showMessage('First game data loaded. No filter active.')
             # Finally if game is found, get its data and write to GUI edit fields.
             if xml_gameFound is not None:
-                self.clear_all_input_fields()
+                
+                self.clear_all_input_fields()     
                 # Go through each tag in the game element and write its text to the corresponding user edit fields,
                 # in example content of "name".
                 for tag in xml_gameFound.iter():
@@ -438,6 +448,19 @@ class MainWin(qtw.QMainWindow):
                             self.le_players.setText(unescape(tag.text))
                         elif tag.tag == "rating":
                             self.le_rating.setText(unescape(tag.text))
+                        elif tag.tag == "sortname":
+                            self.le_sortname.setText(unescape(tag.text))
+                        elif tag.tag == "thumbnail":
+                            self.le_thumbnail.setText(unescape(tag.text))
+                        elif tag.tag == "favorite":
+                            if tag.text == 'true':
+                                self.cb_favorite.setChecked(True)
+                        elif tag.tag == "hidden":
+                            if tag.text == 'true':
+                                self.cb_hidden.setChecked(True)
+                        elif tag.tag == "kidgame":
+                            if tag.text == 'true':
+                                self.cb_kidgame.setChecked(True)
                     except TypeError:
                         pass
             else:
@@ -724,7 +747,17 @@ class MainWin(qtw.QMainWindow):
         if not self.le_players.text() == '':
             d['players'] = escape( self.le_players.text().strip() )
         if not self.le_rating.text() == '':
-            d['rating'] = escape( self.le_rating.text().strip() )
+            d['rating'] = escape( self.le_rating.text().strip() )            
+        if not self.le_sortname.text() == '':
+            d['sortname'] = escape( self.le_sortname.text().strip() )            
+        if not self.le_thumbnail.text() == '':
+            d['thumbnail'] = escape( self.le_thumbnail.text().strip() )            
+        if self.cb_favorite.isChecked():
+            d['favorite'] = 'true'
+        if self.cb_hidden.isChecked():
+            d['hidden'] = 'true'
+        if self.cb_kidgame.isChecked():
+            d['kidgame'] = 'true'            
         return d
     
     # Returns a list with all active tags in settings for merge update. 
@@ -793,6 +826,11 @@ class MainWin(qtw.QMainWindow):
         self.le_genre.clear()
         self.le_players.clear()
         self.le_rating.clear()
+        self.le_sortname.clear()
+        self.le_thumbnail.clear()
+        self.cb_favorite.setChecked(False)
+        self.cb_hidden.setChecked(False)
+        self.cb_kidgame.setChecked(False)
 
     # Update the current log view in ui with the current selected display mode.
     def update_log_text(self):

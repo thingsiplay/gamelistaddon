@@ -24,7 +24,9 @@ In **Add Game**-mode only the fields with content will be written to the file, b
 	./game.gb
 	/home/pi/RetroPie/roms/gb/game.gb
 	
-is treated as identical game. Currently if a dublication is detected, the user action is limited to ignoring or replacing the whole game entry. The *import* button will load up the first found entry from a selected gamelist.xml file. Any of the edit fields in the GUI act as af filter for searching. Only one of the active filters need to match, in order to read the entire game entry. A new added game with this function will have an attribute "source" with the content "gamelistaddon", just like a scraper does.
+is treated as identical game. Currently if a dublication is detected, the user action is limited to ignoring or replacing the whole game entry.
+
+The *import* button will load up the first found entry from a selected gamelist.xml file. Any of the edit fields in the GUI act as af filter for searching. Only one of the active filters need to match, in order to read the entire game entry. A new added game with this function will have an attribute "source" with the content "gamelistaddon", just like a scraper does. Note: Currently the favorite, hidden and kidgame do not work as filter, but work correctly otherwise.
 
 In the **Merge Gamelists**-mode two XML files must be selected. The first one act as base content to compare against and second file should have new content to add. The order is important. When saving a new output XML file, both input files game entries are compared at basename level (described above). The selected output file will be created from scratch with the content of the input files. The update log view will be populated with all newly added game entries only. 
 
