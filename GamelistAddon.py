@@ -614,8 +614,11 @@ class MainWin(qtw.QMainWindow):
                         if mode == 'i':
                             mode = ' new added'
                         elif mode == 'u':
-                            mode = ' merged and updated'
-                        mode = mode + ' (' + str(len(original_root)) + ' total)'
+                            if updateonly is None:
+                                mode = ' merged'
+                            else:
+                                mode = ' updated tags'
+                        mode = mode + ' (' + str(len(original_root)) + ' total games)'
                         self.gb_log_merge.setTitle( 'Log: ' + str(len(self.diff_paths)) + mode )
 
     # Saves the current log information from text view to a file.

@@ -100,13 +100,15 @@ def mergeGamelists(base_root, add_root, duplicate='i', source=None, updateonly=N
                 for tag in add_game.iter():
                     # Ignore first tag from iter(), as it is always game.
                     if tag.tag != 'game' and (updateonly is None or tag.tag in updateonly):
+                        
                         # Get element from base game based on current tag type.
                         # In example "path" element. If the original base game
                         # does have such a tag, remove it.
                         base_tag = base_game.find(tag.tag)
+                        
                         if base_tag is not None:
                             base_game.remove(base_tag)
-                        base_game.append(tag)
+                            base_game.append(tag)
                         
                         # Mark the current game entry as updated, if both tag
                         # content are different. 
@@ -116,6 +118,7 @@ def mergeGamelists(base_root, add_root, duplicate='i', source=None, updateonly=N
                         except AttributeError:
                             pass
                             
+                #if (updateonly is None and updated) or (updateonly is not None and tag_updated):
                 if updated:
                     if source is not None:
                         base_game.set('source', source)
