@@ -118,7 +118,6 @@ def mergeGamelists(base_root, add_root, duplicate='i', source=None, updateonly=N
                         except AttributeError:
                             pass
                             
-                #if (updateonly is None and updated) or (updateonly is not None and tag_updated):
                 if updated:
                     if source is not None:
                         base_game.set('source', source)
