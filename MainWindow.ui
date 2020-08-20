@@ -311,7 +311,7 @@
           <item row="0" column="0">
            <widget class="QLabel" name="l_name">
             <property name="toolTip">
-             <string>game title</string>
+             <string>Game title for display</string>
             </property>
             <property name="text">
              <string>&amp;name</string>
@@ -323,6 +323,9 @@
           </item>
           <item row="12" column="0">
            <widget class="QLabel" name="l_image">
+            <property name="toolTip">
+             <string>Path to an image file, usually screenshot</string>
+            </property>
             <property name="text">
              <string>&amp;image</string>
             </property>
@@ -333,6 +336,9 @@
           </item>
           <item row="14" column="0">
            <widget class="QLabel" name="l_marquee">
+            <property name="toolTip">
+             <string>Path to an marquee image file</string>
+            </property>
             <property name="text">
              <string>mar&amp;quee</string>
             </property>
@@ -343,6 +349,9 @@
           </item>
           <item row="10" column="0">
            <widget class="QLabel" name="l_thumbnail">
+            <property name="toolTip">
+             <string>Path to a small image file</string>
+            </property>
             <property name="text">
              <string>thumbnail</string>
             </property>
@@ -350,9 +359,6 @@
           </item>
           <item row="1" column="0" colspan="5">
            <widget class="QLineEdit" name="le_name">
-            <property name="toolTip">
-             <string>game title</string>
-            </property>
             <property name="clearButtonEnabled">
              <bool>true</bool>
             </property>
@@ -360,6 +366,9 @@
           </item>
           <item row="5" column="0">
            <widget class="QLabel" name="l_desc">
+            <property name="toolTip">
+             <string>Description with multiple lines</string>
+            </property>
             <property name="text">
              <string>des&amp;c</string>
             </property>
@@ -409,6 +418,9 @@
           </item>
           <item row="16" column="0">
            <widget class="QLabel" name="l_video">
+            <property name="toolTip">
+             <string>Path to a video file</string>
+            </property>
             <property name="text">
              <string>&amp;video</string>
             </property>
@@ -451,9 +463,6 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="toolTip">
-             <string>Required: Path to ROM file.</string>
-            </property>
             <property name="clearButtonEnabled">
              <bool>true</bool>
             </property>
@@ -477,6 +486,9 @@
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="l_sortname">
+            <property name="toolTip">
+             <string>Internal sorting, example 1. Legend of Zelda</string>
+            </property>
             <property name="text">
              <string>sortname</string>
             </property>
@@ -506,9 +518,6 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="toolTip">
-             <string>0.65</string>
-            </property>
             <property name="placeholderText">
              <string/>
             </property>
@@ -533,6 +542,9 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="toolTip">
+               <string>Show the game in RetroPie's Favorite system</string>
+              </property>
               <property name="text">
                <string>favorite</string>
               </property>
@@ -546,6 +558,9 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="toolTip">
+               <string>Show game only if in RetroPie UI Mode: &quot;Kid&quot; is active</string>
+              </property>
               <property name="text">
                <string>kidgame</string>
               </property>
@@ -558,6 +573,9 @@
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Only show game, if in RetroPie &quot;Show Hidden Files&quot; is enabled</string>
               </property>
               <property name="text">
                <string>hidden</string>
@@ -597,6 +615,9 @@
           </item>
           <item row="8" column="1" colspan="2">
            <widget class="QLabel" name="l_developer">
+            <property name="toolTip">
+             <string>Creator of the game</string>
+            </property>
             <property name="text">
              <string>de&amp;veloper</string>
             </property>
@@ -633,6 +654,9 @@
           </item>
           <item row="12" column="1" colspan="2">
            <widget class="QLabel" name="l_genre">
+            <property name="toolTip">
+             <string>Type and category</string>
+            </property>
             <property name="text">
              <string>ge&amp;nre</string>
             </property>
@@ -643,6 +667,9 @@
           </item>
           <item row="10" column="1" colspan="2">
            <widget class="QLabel" name="l_publisher">
+            <property name="toolTip">
+             <string>Publisher of the game</string>
+            </property>
             <property name="text">
              <string>&amp;publisher</string>
             </property>
@@ -653,6 +680,9 @@
           </item>
           <item row="16" column="1" colspan="2">
            <widget class="QLabel" name="l_players">
+            <property name="toolTip">
+             <string>Max. player count</string>
+            </property>
             <property name="text">
              <string>p&amp;layers</string>
             </property>
@@ -668,9 +698,6 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>YYYYMMDD</string>
             </property>
             <property name="placeholderText">
              <string/>
@@ -715,7 +742,7 @@
           <item row="8" column="3" colspan="2">
            <widget class="QLabel" name="l_rating">
             <property name="toolTip">
-             <string>0.65</string>
+             <string>Rating as floating point number, in example 0.65</string>
             </property>
             <property name="text">
              <string>rat&amp;ing</string>
@@ -1801,7 +1828,7 @@
            <string>Not available in settings</string>
           </property>
           <property name="text">
-           <string> Save to gamelist…</string>
+           <string> &amp;Save to gamelist…</string>
           </property>
           <property name="icon">
            <iconset resource="images.qrc">

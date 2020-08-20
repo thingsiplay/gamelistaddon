@@ -102,9 +102,12 @@ will only generate the .ui files and the distribution packages for Python only. 
 If you want report a bug or have any questions, head over to the [project's forum thread](https://retropie.org.uk/forum/topic/27466/gamelist-addon-an-assist-tool-to-manually-add-new-game-entries)  in RetroPie or [leave me a message](https://thingsiplay.game.blog/contact/) on my contact page.
 
 ## Changelog
+
 Version 0.3:
 
-- new settings for merge update mode, limit changes/updates to selected tags only
+- new dedicated settings for Merge Update mode, limit updates to selected Tags only
+- few missing Tags support added, previously they were ignored, namely *sortname*, *thumbnail*, *favorite*, *hidden* and *kidgame*
+- layout of main Add Game view redesigned, to reflect the new additions
 
 Version 0.2:
 

@@ -12,24 +12,34 @@
 </div>
 <h2 id="introduction">Introduction</h2>
 <p><a href="https://retropie.org.uk/docs/EmulationStation/#gamelistxml-edits">gamelist.xml</a> files are databases for the use in <a href="https://retropie.org.uk/docs/EmulationStation/">EmulationStation</a>, in example in RetroPie. They contain all paths and meta information for each system. Usually those files are created by some sort of <a href="https://retropie.org.uk/docs/Scraper/">scraper tools</a> and do not require any manual editing. However sometimes there are cases when manually editing is required. Editing such files in a text editor has some traps and is just a pain.</p>
-<p>This app will check for existing entries to and make sure the file is written in correct format. I started this project because there was no application on Linux that fulfill my needs. Also this is a good exercise to me learning more about programming.</p>
+<p>This app will check for existing game entries and make sure the file is written in correct format. It is not a replacement for a rom manager or full fledged gamelist.xml editor. Entries are added as they are and no additional rom, image or video files are copied or checked for existence. It is the users responsibility to manage those things separately.</p>
+<p>I started this project because there was no application on Linux that fulfill my needs. Also this is a good exercise to me learning more about programming.</p>
 <h2 id="usage">Usage</h2>
 <p>Once unpacked and the requirements are met, it is easy as running <strong>GamelistAddon.py</strong> or the run script. The app provides two main functionality modes: <em>Add Game</em> and <em>Merge Gamelists</em>.</p>
 <p>In <strong>Add Game</strong>-mode only the fields with content will be written to the file, but <em>path</em> is required. The game entry can be added to an existing gamelist.xml or saved as a new file created from scratch. When overwriting to an existing file, a check if the game is already existing will be made. The comparison is done at basename level of the path field, ignoring the directory portion. This allows for detecting any game, regardless of how the path is noted (in example relative notion). In example:</p>
 <pre><code>./game.gb
 /home/pi/RetroPie/roms/gb/game.gb</code></pre>
-<p>is treated as identical game. Currently if a dublication is detected, the user action is limited to ignoring or replacing the whole game entry. The <em>import</em> button will load up the first found entry from a selected gamelist.xml file. Any of the edit fields in the GUI act as af filter for searching. Only one of the active filters need to match, in order to read the entire game entry. A new added game with this function will have an attribute &quot;source&quot; with the content &quot;gamelistaddon&quot;, just like a scraper does.</p>
+<p>is treated as identical game. Currently if a dublication is detected, the user action is limited to ignoring or replacing the whole game entry.</p>
+<p>The <strong>import</strong> button will load up the first found entry from a selected gamelist.xml file. Any of the edit fields in the GUI act as af filter for searching. Only one of the active filters need to match, in order to read the entire game entry. A new added game with this function will have an attribute &quot;source&quot; with the content &quot;gamelistaddon&quot;, just like a scraper does. Note: Currently the favorite, hidden and kidgame do not work as filter, but work correctly otherwise.</p>
 <p>In the <strong>Merge Gamelists</strong>-mode two XML files must be selected. The first one act as base content to compare against and second file should have new content to add. The order is important. When saving a new output XML file, both input files game entries are compared at basename level (described above). The selected output file will be created from scratch with the content of the input files. The update log view will be populated with all newly added game entries only.</p>
-<p>There are two operational modes: <em>Ignore</em> and <em>Update</em>. Ignore mode will only add new games which do not exist in base content, basically ignoring duplicates. In Update mode all games from both files are included and every single tag is compared individually. The tags from add content have higher priority. Any merging operation is considered to be an update and listed in the log. It will copy non updated games in its entirety too.</p>
-<p>As a little bonus, in the app folder is a separate commandline tool <strong>merge.py</strong> with merge functionality from the main app. It does not require PyQt5 and could be used for automation or testing. Currently if there is any error, then the program will stop and output <em>ERROR</em> on screen. On success the paths of each newly added game entries are output. Important: On default no files are saved and the original XML files are untouched. Check the options and how to specify an output file with</p>
+<p>There are two merge modes: <strong>Ignore</strong> and <strong>Update</strong>. Ignore mode will only add new games which do not exist in base content, basically ignoring duplicates. In Update mode all games from both files are included and every single tag is compared individually. The tags from add content have higher priority. Any merging operation is considered to be an update and listed in the log. It will copy non updated games in its entirety too.</p>
+<p>Once Update mode is activated, a new tab <strong>Settings Merge Update</strong> will appear. In this view every single tag like <em>name</em> or <em>lastplayed</em> can be individually selected. Only those selected tags will be compared between base content data and add content data when using the update functionality. That means, if the tag lastplayed is found in add content, then it will be used in new file. Otherwise it defaults to lastplayed from base content. Any unchecked tag will be taken from base content without any changes.</p>
+<p>In the app folder is a separate commandline tool <strong>merge.py</strong> with merge functionality from the main app. It does not require PyQt5 and could be used for automation or testing. Currently if there is any error, then the program will stop and output <em>ERROR</em> on screen. On success the paths of each newly added game entries are output. Important: On default no files are saved and the original XML files are untouched. Check the options and how to specify an output file with</p>
 <pre><code>./merge.py -h.</code></pre>
-<h3 id="how-duplicates-are-identified">How duplicates are identified</h3>
+<h2 id="how-duplicates-are-identified">How duplicates are identified</h2>
 <p>This program uses an unique way of identifying duplicates. It assumes that a rom is appearing only once in the gamelist file. When comparing two different files, one might have a different notation of the directory part in the path. The comparison is done at <em>basename</em> only, means the file itself and ignoring that directory part. Here is an example what this means.</p>
 <p>gamelist.xml from user 1:</p>
 <pre><code>&lt;path&gt;./Aero the Acro-Bat 2 (U).smc&lt;/path&gt;</code></pre>
 <p>gamelist.xml from user 2:</p>
 <pre><code>&lt;path&gt;./roms/snes/Aero the Acro-Bat 2 (U).smc&lt;/path&gt;</code></pre>
 <p>This game is considered to be a duplicate. <em>Warning</em>: If the other file is using an unusual folder, this might cause problems when merging them.</p>
+<h2 id="known-bugs-limitations-and-quirks">Known bugs, limitations and quirks</h2>
+<p>In certain situations or parts of the program it behaves unexpected or in a very specific way. All unsolved mysteries are collected and described here.</p>
+<h3 id="non-critical">Non critical</h3>
+<ul>
+<li><p>Add Game view: When using the import function/button, then the checkboxes <em>favorite</em>, <em>hidden</em> and <em>kidgame</em> do not work as filters and are ignored. But they are fully functional otherwise and will be read and written. Only the ability to use them as filters like in name or desc is not possible.</p></li>
+<li><p>Merge Gamelists view: When using the Duplicate Mode: Update with Custom tag settings enabled, then the log will only list games with individually updated tags. These are marked as &quot;udpated&quot;. When a tag is copied from one of the contents without overwriting it, then it's not considered to be an update. This really applies only when using Custom tag settings and only what is seen in the log.</p></li>
+</ul>
 <h2 id="requirements">Requirements</h2>
 <p>When running Python version directly:</p>
 <ul>
@@ -55,6 +65,12 @@
 <h2 id="feedback">Feedback</h2>
 <p>If you want report a bug or have any questions, head over to the <a href="https://retropie.org.uk/forum/topic/27466/gamelist-addon-an-assist-tool-to-manually-add-new-game-entries">project's forum thread</a> in RetroPie or <a href="https://thingsiplay.game.blog/contact/">leave me a message</a> on my contact page.</p>
 <h2 id="changelog">Changelog</h2>
+<p>Version 0.3:</p>
+<ul>
+<li>new dedicated settings for Merge Update mode, limit updates to selected Tags only</li>
+<li>few missing Tags support added, previously they were ignored, namely <em>sortname</em>, <em>thumbnail</em>, <em>favorite</em>, <em>hidden</em> and <em>kidgame</em></li>
+<li>layout of main Add Game view redesigned, to reflect the new additions</li>
+</ul>
 <p>Version 0.2:</p>
 <ul>
 <li>new update feature in merge mode</li>
