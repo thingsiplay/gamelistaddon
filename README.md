@@ -13,7 +13,9 @@ Gamelist Addon is a graphical desktop app for Linux with the capability to add n
 
 [gamelist.xml](https://retropie.org.uk/docs/EmulationStation/#gamelistxml-edits) files are databases for the use in [EmulationStation](https://retropie.org.uk/docs/EmulationStation/), in example in RetroPie. They contain all paths and meta information for each system. Usually those files are created by some sort of [scraper tools](https://retropie.org.uk/docs/Scraper/) and do not require any manual editing. However sometimes there are cases when manually editing is required. Editing such files in a text editor has some traps and is just a pain.
 
-This app will check for existing entries to and make sure the file is written in correct format. I started this project because there was no application on Linux that fulfill my needs. Also this is a good exercise to me learning more about programming.
+This app will check for existing game entries and make sure the file is written in correct format. It is not a replacement for a rom manager or full fledged gamelist.xml editor. Entries are added as they are and no additional rom, image or video files are copied or checked for existence. It is the users responsibility to manage those things separately.
+
+I started this project because there was no application on Linux that fulfill my needs. Also this is a good exercise to me learning more about programming.
 
 ## Usage
 
@@ -26,7 +28,7 @@ In **Add Game**-mode only the fields with content will be written to the file, b
 	
 is treated as identical game. Currently if a dublication is detected, the user action is limited to ignoring or replacing the whole game entry.
 
-The *import* button will load up the first found entry from a selected gamelist.xml file. Any of the edit fields in the GUI act as af filter for searching. Only one of the active filters need to match, in order to read the entire game entry. A new added game with this function will have an attribute "source" with the content "gamelistaddon", just like a scraper does. Note: Currently the favorite, hidden and kidgame do not work as filter, but work correctly otherwise.
+The **import** button will load up the first found entry from a selected gamelist.xml file. Any of the edit fields in the GUI act as af filter for searching. Only one of the active filters need to match, in order to read the entire game entry. A new added game with this function will have an attribute "source" with the content "gamelistaddon", just like a scraper does. Note: Currently the favorite, hidden and kidgame do not work as filter, but work correctly otherwise.
 
 In the **Merge Gamelists**-mode two XML files must be selected. The first one act as base content to compare against and second file should have new content to add. The order is important. When saving a new output XML file, both input files game entries are compared at basename level (described above). The selected output file will be created from scratch with the content of the input files. The update log view will be populated with all newly added game entries only. 
 
@@ -38,7 +40,7 @@ In the app folder is a separate commandline tool **merge.py** with merge functio
 
 	./merge.py -h.
 
-### How duplicates are identified
+## How duplicates are identified
 
 This program uses an unique way of identifying duplicates. It assumes that a rom is appearing only once in the gamelist file. When comparing two different files, one might have a different notation of the directory part in the path. The comparison is done at *basename* only, means the file itself and ignoring that directory part. Here is an example what this means. 
 
@@ -51,6 +53,16 @@ gamelist.xml from user 2:
 	<path>./roms/snes/Aero the Acro-Bat 2 (U).smc</path>
 
 This game is considered to be a duplicate. *Warning*: If the other file is using an unusual folder, this might cause problems when merging them.
+
+## Known bugs, limitations and quirks
+
+In certain situations or parts of the program it behaves unexpected or in a very specific way. All unsolved mysteries are collected and described here.
+
+### Non critical
+
+- Add Game view: When using the import function/button, then the checkboxes *favorite*, *hidden* and *kidgame* do not work as filters and are ignored. But they are fully functional otherwise and will be read and written. Only the ability to use them as filters like in name or desc is not possible.
+
+- Merge Gamelists view: When using the Duplicate Mode: Update with Custom tag settings enabled, then the log will only list games with individually updated tags. These are marked as "udpated". When a tag is copied from one of the contents without overwriting it, then it's not considered to be an update. This really applies only when using Custom tag settings and only what is seen in the log.
 
 ## Requirements
 
