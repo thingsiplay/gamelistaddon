@@ -25,8 +25,12 @@ def run(cmd, write=True, dir=None):
 
 # init
 APP = App.App(__file__)
-# Mother directory to operate and build in.
-DIR = 'dist'
+# Mother directory to operate and build in. Should be a folder name, as it is 
+# joined by absolute path APP.DIR.
+# Important: Be careful with this, as rmtree on this folder will be done.
+BUILD_DIRNAME = 'dist'
+# Same as BUILD_DIR, but as a full path.
+BUILD_PATH = os.path.join(APP.DIR, BUILD_DIRNAME)
 # Folder name used with BUILD. This is just a folder name, created inside DIR.
 BIN_FOLDER = 'GamelistAddon'
 # Default values if no commandline options are available.
@@ -68,11 +72,10 @@ if SETUP:
     if PACKAGE:
         command_exist('pandoc')
 
-
 # create fresh dist folder
-run(f'rm -R -f "{DIR}"', False, APP.DIR)
-run(f'mkdir -p "{DIR}"', False, APP.DIR)
-run(f'cp "README.md" "{DIR}"', False, APP.DIR)
+shutil.rmtree(BUILD_PATH, ignore_errors=True)
+os.makedirs(BUILD_PATH, 0o777, True)
+run(f'cp "README.md" "{BUILD_DIRNAME}"', False, APP.DIR)
 
 if UI:
 
@@ -84,54 +87,60 @@ if UI:
 if PACKAGE or BUILD:
     
     # readme
-    cmd = f'pandoc "{DIR}/README.md" -f markdown -t html -o "README.html"'
+    cmd = f'pandoc "{BUILD_DIRNAME}/README.md" -f markdown -t html -o "README.html"'
     run(cmd, True, APP.DIR)
-    shutil.copy2('README.html', DIR)
+    shutil.copy2('README.html', BUILD_DIRNAME)
 
 if BUILD:
 
     # nuitka bin
-    run(f'mkdir -p "{DIR}"', False, APP.DIR)
     cmd = 'python3 -m nuitka --follow-imports --standalone --plugin-enable=qt-plugins --python-flag=no_site --remove-output' \
-          + f' --output-dir="{DIR}" "GamelistAddon.py"'
+          + f' --output-dir="{BUILD_PATH}" "GamelistAddon.py"'
     run(cmd, True, APP.DIR)
-    shutil.move(f'{DIR}/GamelistAddon.dist', f'{DIR}/{BIN_FOLDER}')
-    shutil.copy2(f'{DIR}/README.html', f'{DIR}/{BIN_FOLDER}')
-    shutil.copy2(f'LICENSE', f'{DIR}/{BIN_FOLDER}')
-    run(f'mkdir -p {DIR}/{BIN_FOLDER}/img', False, APP.DIR)
-    shutil.copy2(f'img/screen_addgame-thumb.png', f'{DIR}/{BIN_FOLDER}/img')
-    shutil.copy2('run', f'{DIR}')
+    shutil.move(f'{BUILD_PATH}/GamelistAddon.dist', f'{BUILD_PATH}/{BIN_FOLDER}')
+    shutil.copy2(f'{BUILD_PATH}/README.html', f'{BUILD_PATH}/{BIN_FOLDER}')
+    shutil.copy2(f'LICENSE', f'{BUILD_PATH}/{BIN_FOLDER}')
+    dir = os.path.join(BUILD_PATH, BIN_FOLDER)
+    os.makedirs(os.path.join(dir, 'img'), 0o777, True)
+    shutil.copy2(os.path.join('img', 'screen_addgame-thumb.png'), f'{dir}')
+    shutil.copy2('run', f'{BUILD_PATH}')
 
 if PACKAGE:
 
-    # init
-    run(f'mkdir -p "{DIR}"', False, APP.DIR)
     # Remove all annoying pycache folders.
     run('find . | grep -E "(__pycache__$)" | xargs rm -rf', False, APP.DIR)
     
     # python    
-    file = f'{DIR}/gamelistaddon' + '-' + APP.VERSION + '.tar.gz'
+    file = f'{BUILD_PATH}/gamelistaddon' + '-' + APP.VERSION + '.tar.gz'
     cmd = f'tar -czvf "{file}" --exclude=make.py *.py constants/*.* gui/*.* gamelistxml/*.* "img/screen_addgame-thumb.png" "README.html" LICENSE'
     run(cmd, True, APP.DIR)
 
     if BUILD:
 
         # nuitka bin        
-        file = 'gamelistaddon-Linux-64Bit' + '-' + APP.VERSION + '.tar.gz'
+        file = f'{BUILD_PATH}/gamelistaddon-Linux-64Bit' + '-' + APP.VERSION + '.tar.gz'
         cmd = f'tar -czvf "{file}" "{BIN_FOLDER}" run'
-        run(cmd, True, os.path.join(APP.DIR, DIR))
+        run(cmd, True, BUILD_PATH)
 
 if CLEAN:
 
     # temporary files
-    run('rm -f README.md', False, os.path.join(APP.DIR, DIR))
-    run('rm -f README.html', False, os.path.join(APP.DIR, DIR))
-    run('rm -R -f build', False, APP.DIR)
+    try:
+        os.remove(os.path.join(BUILD_PATH, 'README.md'))
+    except FileNotFoundError:
+        pass
+    try:
+        os.remove(os.path.join(BUILD_PATH, 'README.html'))
+    except FileNotFoundError:
+        pass
+    shutil.rmtree(os.path.join(APP.DIR, 'build'), ignore_errors=True)
     run('find . | grep -E "(__pycache__$)" | xargs rm -rf', False, APP.DIR)
 
     if PACKAGE and BUILD:
 
-        run(f'rm -R -f "{BIN_FOLDER}"', False, os.path.join(APP.DIR, DIR))
-        run('rm -f "run"', False, os.path.join(APP.DIR, DIR))
+        shutil.rmtree(os.path.join(BUILD_PATH, BIN_FOLDER), ignore_errors=True)
+        os.remove(os.path.join(BUILD_PATH, 'run'))        
+    else:        
+        shutil.rmtree(BUILD_PATH, ignore_errors=True)
 
 sys.exit(0)
