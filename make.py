@@ -70,9 +70,9 @@ if SETUP:
 
 
 # create fresh dist folder
-run('rm -R -f "{DIR}"'.format(DIR=DIR), False, APP.DIR)
-run('mkdir -p "{DIR}"'.format(DIR=DIR), False, APP.DIR)
-run('cp "README.md" "{DIR}"'.format(DIR=DIR), False, APP.DIR)
+run(f'rm -R -f "{DIR}"', False, APP.DIR)
+run(f'mkdir -p "{DIR}"', False, APP.DIR)
+run(f'cp "README.md" "{DIR}"', False, APP.DIR)
 
 if UI:
 
@@ -84,57 +84,54 @@ if UI:
 if PACKAGE or BUILD:
     
     # readme
-    cmd = 'pandoc "{DIR}/README.md" -f markdown -t html -o "README.html"'.format(DIR=DIR)
+    cmd = f'pandoc "{DIR}/README.md" -f markdown -t html -o "README.html"'
     run(cmd, True, APP.DIR)
     shutil.copy2('README.html', DIR)
 
 if BUILD:
 
     # nuitka bin
-    run('mkdir -p "{DIR}"'.format(DIR=DIR, BIN_FOLDER=BIN_FOLDER), False, APP.DIR)
+    run(f'mkdir -p "{DIR}"', False, APP.DIR)
     cmd = 'python3 -m nuitka --follow-imports --standalone --plugin-enable=qt-plugins --python-flag=no_site --remove-output' \
-          + ' --output-dir="{DIR}" "GamelistAddon.py"'.format(DIR=DIR, BIN_FOLDER=BIN_FOLDER)
+          + f' --output-dir="{DIR}" "GamelistAddon.py"'
     run(cmd, True, APP.DIR)
-    shutil.move('{DIR}/GamelistAddon.dist'.format(DIR=DIR, BIN_FOLDER=BIN_FOLDER), 
-                '{DIR}/{BIN_FOLDER}'.format(DIR=DIR, BIN_FOLDER=BIN_FOLDER))
-    shutil.copy2('{DIR}/README.html'.format(DIR=DIR), '{DIR}/{BIN_FOLDER}'.format(DIR=DIR, BIN_FOLDER=BIN_FOLDER))
-    shutil.copy2('LICENSE', '{DIR}/{BIN_FOLDER}'.format(DIR=DIR, BIN_FOLDER=BIN_FOLDER))
-    run('mkdir -p {DIR}/{BIN_FOLDER}/img'.format(DIR=DIR, BIN_FOLDER=BIN_FOLDER), False, APP.DIR)
-    shutil.copy2('img/screen_addgame-thumb.png', '{DIR}/{BIN_FOLDER}/img'.format(DIR=DIR, BIN_FOLDER=BIN_FOLDER))
-    shutil.copy2('run', '{DIR}'.format(DIR=DIR, BIN_FOLDER=BIN_FOLDER))
+    shutil.move(f'{DIR}/GamelistAddon.dist', f'{DIR}/{BIN_FOLDER}')
+    shutil.copy2(f'{DIR}/README.html', f'{DIR}/{BIN_FOLDER}')
+    shutil.copy2(f'LICENSE', f'{DIR}/{BIN_FOLDER}')
+    run(f'mkdir -p {DIR}/{BIN_FOLDER}/img', False, APP.DIR)
+    shutil.copy2(f'img/screen_addgame-thumb.png', f'{DIR}/{BIN_FOLDER}/img')
+    shutil.copy2('run', f'{DIR}')
 
 if PACKAGE:
 
     # init
-    run('mkdir -p "{DIR}"'.format(DIR=DIR), False, APP.DIR)
+    run(f'mkdir -p "{DIR}"', False, APP.DIR)
     # Remove all annoying pycache folders.
     run('find . | grep -E "(__pycache__$)" | xargs rm -rf', False, APP.DIR)
     
     # python    
-    file = '{DIR}/gamelistaddon'.format(DIR=DIR) + '-' + APP.VERSION + '.tar.gz'
-    cmd = 'tar -czvf "{FILE}" --exclude=make.py *.py constants/*.* gui/*.* gamelistxml/*.* "img/screen_addgame-thumb.png" "README.html" LICENSE'.format(FILE=file)
+    file = f'{DIR}/gamelistaddon' + '-' + APP.VERSION + '.tar.gz'
+    cmd = f'tar -czvf "{file}" --exclude=make.py *.py constants/*.* gui/*.* gamelistxml/*.* "img/screen_addgame-thumb.png" "README.html" LICENSE'
     run(cmd, True, APP.DIR)
 
     if BUILD:
 
         # nuitka bin        
         file = 'gamelistaddon-Linux-64Bit' + '-' + APP.VERSION + '.tar.gz'
-        cmd = 'tar -czvf "{FILE}" "{BIN_FOLDER}" run'.format(FILE=file, BIN_FOLDER=BIN_FOLDER)
+        cmd = f'tar -czvf "{file}" "{BIN_FOLDER}" run'
         run(cmd, True, os.path.join(APP.DIR, DIR))
 
 if CLEAN:
 
     # temporary files
     run('rm -f README.md', False, os.path.join(APP.DIR, DIR))
-    #run('rm -f README.html', False, APP.DIR)
-    #run('rm -f gui/images.rc.py', False, APP.DIR)
     run('rm -f README.html', False, os.path.join(APP.DIR, DIR))
     run('rm -R -f build', False, APP.DIR)
     run('find . | grep -E "(__pycache__$)" | xargs rm -rf', False, APP.DIR)
 
     if PACKAGE and BUILD:
 
-        run('rm -R -f "{BIN_FOLDER}"'.format(BIN_FOLDER=BIN_FOLDER), False, os.path.join(APP.DIR, DIR))
+        run(f'rm -R -f "{BIN_FOLDER}"', False, os.path.join(APP.DIR, DIR))
         run('rm -f "run"', False, os.path.join(APP.DIR, DIR))
 
 sys.exit(0)
