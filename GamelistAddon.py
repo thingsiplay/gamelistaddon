@@ -229,7 +229,7 @@ class MainWin(qtw.QMainWindow):
         about.show()
 
     def actionClose_triggered(self):
-        self.close_application()
+        self.close()
 
     # Widget handlers
     
@@ -384,7 +384,7 @@ class MainWin(qtw.QMainWindow):
             xml_root = ET.parse(xml_file).getroot()
         except ET.ParseError as error:
             xml_root = None
-            self.showErrorMessage('Error! Could not parse gamelist XML file '
+            self.msg_show_error('Error! Could not parse gamelist XML file '
                                     + str(error.position) +  ':\n' + xml_file, 'Critical', 'Could not read file.')
         
         xml_gameFound = None
@@ -490,7 +490,7 @@ class MainWin(qtw.QMainWindow):
         # basename only.
         current_path = self.le_path.text().strip()
         if current_path == '' or len(os.path.basename(current_path)) == 0:
-            self.showErrorMessage('No filename in path. Filename required to save an xml game entry.', 'Warning', 'No file.')
+            self.msg_show_error('No filename in path. Filename required to save an xml game entry.', 'Warning', 'No file.')
         else:
             file = self.dialog_choose_file('Save game data. Overwrite existing or create new file.',
                                            '*.xml', mode='Save', dir=self.last_save_file)
@@ -514,7 +514,7 @@ class MainWin(qtw.QMainWindow):
                     try:
                         file_xml_root = ET.parse(file).getroot()
                     except ET.ParseError as error:
-                        self.showErrorMessage('Error! Could not parse gamelist XML file '
+                        self.msg_show_error('Error! Could not parse gamelist XML file '
                                                 + str(error.position) + ':\n' + file, 'Critical', 'Could not read file.')
                         file_xml_root = None
 
@@ -528,20 +528,14 @@ class MainWin(qtw.QMainWindow):
                         # Ask the user what to do if a game with same basename was found.
                         if xml_gameFound is not None:
                             # Game entry found in xml file. Ask to overwrite entry or abort.
-                            msgBox = qtw.QMessageBox()
-                            msgBox.setIcon(qtw.QMessageBox.Question)
-                            msgBox.setWindowTitle(APP.NAME + ' Overwrite XML')
-                            msgBox.setText('Game entry collison! Game with same basename in path already exists in XML file.\n'
-                                           + 'Basename from path:\n\n"' + os.path.basename(current_path) + '"\n\n'
-                                           + 'Do you want replace the entire game entry and overwrite file?')
-                            msgBox.setStandardButtons(qtw.QMessageBox.Yes | qtw.QMessageBox.No)
-
-                            returnValue = msgBox.exec()
-                            if returnValue == qtw.QMessageBox.Yes:
-                                # Now remove the duplicate game tag element.
+                            message = 'Game entry collison! Game with same basename in path already exists in XML file.\n' \
+                                    + f'Basename from path:\n\n"{os.path.basename(current_path)}"\n\n' \
+                                    + 'Do you want replace the entire game entry and overwrite file?'
+                            removeGame = self.msg_continue(message, f'{APP.NAME} Overwrite XML', 'Question')
+                            if removeGame:
                                 file_xml_root.remove(xml_gameFound)
                         # Append new game entry and write to file. Any existing entry should be removed prior to this.
-                        if xml_gameFound is None or returnValue == qtw.QMessageBox.Yes:
+                        if xml_gameFound is None or removeGame:
                             file_xml_root.append(xml_element)
                             xml_tree = ET.ElementTree()
                             Convert.indent(file_xml_root)
@@ -551,7 +545,7 @@ class MainWin(qtw.QMainWindow):
                                 Convert.prepend_filecontent(file, "<?xml version=\"1.0\"?>\n")
                                 self.statusbar.showMessage('File saved to: ' + file)
                             except OSError:
-                                self.showErrorMessage('Error! Could not write to file: \n' + file, 'Critical', 'File not saved.')
+                                self.msg_show_error('Error! Could not write to file: \n' + file, 'Critical', 'File not saved.')
                 # Write file from scratch with single game content.
                 else:
                     xml = self.create_dict_from_gui()
@@ -563,7 +557,7 @@ class MainWin(qtw.QMainWindow):
                         Convert.prepend_filecontent(file, "<?xml version=\"1.0\"?>\n")
                         self.statusbar.showMessage('File saved to: ' + file)
                     except OSError:
-                        self.showErrorMessage('Error! Could not write to new file:\n' + file, 'Warning', 'File not saved.')
+                        self.msg_show_error('Error! Could not write to new file:\n' + file, 'Warning', 'File not saved.')
 
 
     # Takes two xml files and merges them into one file. All game entries missing in original file will be added from
@@ -575,13 +569,13 @@ class MainWin(qtw.QMainWindow):
         original_file = self.le_original_merge.text()
         new_file = self.le_new_merge.text()
         if not os.path.exists(original_file) :
-            self.showErrorMessage('File from input field do not exist. Original:\n' + original_file,
+            self.msg_show_error('File from input field do not exist. Original:\n' + original_file,
                                   'Critical', 'File does not exist.')
         elif not os.path.exists(new_file):
-            self.showErrorMessage('File from input field do not exist. New:\n' + new_file,
+            self.msg_show_error('File from input field do not exist. New:\n' + new_file,
                                   'Critical', 'File does not exist.')
         elif os.path.samefile(original_file, new_file):
-            self.showErrorMessage('Both paths from input point to same file.' + new_file,
+            self.msg_show_error('Both paths from input point to same file.' + new_file,
                                   'Critical', 'Identical files.')
         else:
             try:
@@ -590,7 +584,7 @@ class MainWin(qtw.QMainWindow):
                 e = new_file
                 new_root = ET.parse(new_file).getroot()
             except ET.ParseError as error:
-                self.showErrorMessage('Error! Could not parse gamelist XML file '
+                self.msg_show_error('Error! Could not parse gamelist XML file '
                                       + str(error.position) + ':\n' + e, 'Critical', 'Could not read file.')
             else:
                 save_file = self.dialog_choose_file('Merge and save. Overwrite existing or create new file.',
@@ -621,7 +615,7 @@ class MainWin(qtw.QMainWindow):
                         Convert.prepend_filecontent(save_file, "<?xml version=\"1.0\"?>\n")
                         self.statusbar.showMessage('File saved to: ' + save_file)
                     except OSError:
-                        self.showErrorMessage('Error! Could not write to XML file: \n' + save_file, 'Critical', 'File not saved.')
+                        self.msg_show_error('Error! Could not write to XML file: \n' + save_file, 'Critical', 'File not saved.')
                         self.gb_log_merge.setTitle('Log: ')
                     else:
                         self.update_log_text()
@@ -649,7 +643,7 @@ class MainWin(qtw.QMainWindow):
                     Convert.prepend_filecontent(save_file, "<?xml version=\"1.0\"?>\n")
                     self.statusbar.showMessage('File saved to: ' + save_file)
                 except OSError:
-                    self.showErrorMessage('Error! Could not write to XML file: \n' + save_file, 'Critical', 'File not saved.')
+                    self.msg_show_error('Error! Could not write to XML file: \n' + save_file, 'Critical', 'File not saved.')
                     self.gb_log_merge.setTitle('Log: ')
             else:
                 try:
@@ -657,60 +651,11 @@ class MainWin(qtw.QMainWindow):
                         f.write(self.pte_log_merge.toPlainText())
                         self.statusbar.showMessage('File saved to: ' + save_file)
                 except PermissionError:
-                    self.showErrorMessage('Error! No permission to save file:\n' + save_file, 'Critical', 'File not saved.')
+                    self.msg_show_error('Error! No permission to save file:\n' + save_file, 'Critical', 'File not saved.')
                 except OSError:
-                    self.showErrorMessage('Error! Could not write to log file:\n' + save_file, 'Critical', 'File not saved.')
+                    self.msg_show_error('Error! Could not write to log file:\n' + save_file, 'Critical', 'File not saved.')
 
     # Helper functions
-
-    # Just a shorthand to show an error message box and print to terminal.
-    def showErrorMessage(self, message, type=None, short=None):
-        if short is None:
-            short = message
-        self.statusbar.showMessage(message)
-        print(message)
-        msgBox = qtw.QMessageBox()
-        if type == 'Warning':
-            msgBox.setIcon(qtw.QMessageBox.Warning)
-        elif type == 'Critical':
-            msgBox.setIcon(qtw.QMessageBox.Critical)
-        elif type == 'Information':
-            msgBox.setIcon(qtw.QMessageBox.Information)
-        msgBox.setWindowTitle(APP.NAME)
-        msgBox.setText(message)
-        msgBox.setStandardButtons(qtw.QMessageBox.Ok)
-        msgBox.exec()
-
-    # Show a standardized dialog for loading or saving files. Returns full path of file or an empty string if cancelled.
-    # In case of mode='load', the file will be checked if its exists. In case of mode='save', button is named 'save'
-    # accordingly.
-    def dialog_choose_file(self, title, filter=None, mode=None, dir=None):
-        dialog = qtw.QFileDialog()
-        dialog.setWindowTitle(title)
-        if filter is not None:
-            dialog.setNameFilter(filter)
-        if dir is None:
-            if self.last_default_dir is None:
-                dir = os.getcwd()
-            else:
-                dir = self.last_default_dir
-        if os.path.isfile(dir):
-            dir = os.path.dirname(dir)
-        self.last_default_dir = dir
-        dialog.setDirectory(dir)
-        dialog.setFileMode(qtw.QFileDialog.AnyFile)
-        if mode == 1 or mode == 'Save':
-            dialog.setAcceptMode(qtw.QFileDialog.AcceptSave)
-        dialog.setOptions(qtw.QFileDialog.DontUseNativeDialog | qtw.QFileDialog.DontConfirmOverwrite)
-        if dialog.exec_() == qtw.QDialog.Accepted:
-            # Get the file string and add default extension if not present.
-            file = str(dialog.selectedFiles()[0])
-        else:
-            file = ''
-        if mode == 0 or mode == 'Load':
-            if not os.path.exists(file):
-                file = ''
-        return file
 
     # Read all non empty user text fields and create a Python dictionary out of it.
     def create_dict_from_gui(self):
@@ -859,9 +804,9 @@ class MainWin(qtw.QMainWindow):
                 else:
                     os.startfile(file)
             else:
-                self.showErrorMessage('Readme file not found:\n' + file, 'Warning')
+                self.msg_show_error('Readme file not found:\n' + file, 'Warning')
         except:
-            self.showErrorMessage('Could not run the file with default application:\n' + file, 'Warning')
+            self.msg_show_error('Could not run the file with default application:\n' + file, 'Warning')
 
     # This is just in case the user drag and drops the file, so the file:// format is supported.
     def normalize_filepath(self, file):
@@ -870,21 +815,83 @@ class MainWin(qtw.QMainWindow):
         file = file.lstrip()
         file = file.rstrip()
         return file
-
-    # Ask the user to end.
-    def close_application(self):
-        message = 'Do you want close the application? Any non saved data will be lost.'
-
+    
+    # Dialog and Message Box related helper functions
+    # Just a shorthand to show an error message box and print to terminal.
+    def msg_show_error(self, message, type=None, short=None):
+        if short is None:
+            short = message
         msgBox = qtw.QMessageBox()
-        msgBox.setIcon(qtw.QMessageBox.Warning)
+        if type == 'Warning':
+            msgBox.setIcon(qtw.QMessageBox.Warning)
+        elif type == 'Critical':
+            msgBox.setIcon(qtw.QMessageBox.Critical)
+        elif type == 'Information':
+            msgBox.setIcon(qtw.QMessageBox.Information)
+        else:
+            raise ValueError('Wrong argument value for type in msg_show_error().')
         msgBox.setWindowTitle(APP.NAME)
         msgBox.setText(message)
+        msgBox.setStandardButtons(qtw.QMessageBox.Ok)
+        self.statusbar.showMessage(short)
+        print(message)
+        msgBox.exec()
+    
+    # A standard message asking to continue with process.
+    # Title defaults to APP.NAME and type specifies icon and which button is default.
+    # If user clicks Yes-button, then function returns True, otherwise False.
+    def msg_continue(self, message, title=None, type='Question'):
+        msgBox = qtw.QMessageBox()
         msgBox.setStandardButtons(qtw.QMessageBox.No|qtw.QMessageBox.Ok)
-        msgBox.setDefaultButton(qtw.QMessageBox.No)
+        if type == 'Question':
+            msgBox.setIcon(qtw.QMessageBox.Question)            
+            msgBox.setDefaultButton(qtw.QMessageBox.Ok)
+        elif type == 'Information':     
+            msgBox.setIcon(qtw.QMessageBox.Information)
+            msgBox.setDefaultButton(qtw.QMessageBox.Ok)
+        elif type == 'Warning':
+            msgBox.setIcon(qtw.QMessageBox.Warning)
+            msgBox.setDefaultButton(qtw.QMessageBox.No)
+        else:
+            raise ValueError('Wrong argument value for type in msg_continue().')
         msgBox.setEscapeButton(qtw.QMessageBox.No)
-
-        if msgBox.exec() == qtw.QMessageBox.Ok:
-            self.close()
+        if title is None:
+            title == APP.NAME
+        msgBox.setWindowTitle(title)
+        msgBox.setText(message)
+        
+        return True if msgBox.exec() == qtw.QMessageBox.Ok else False
+    
+    # Show a standardized dialog for loading or saving files. Returns full path of file or an empty string if cancelled.
+    # In case of mode='load', the file will be checked if its exists. In case of mode='save', button is named 'save'
+    # accordingly.
+    def dialog_choose_file(self, title, filter=None, mode=None, dir=None):
+        dialog = qtw.QFileDialog()
+        dialog.setWindowTitle(title)
+        if filter is not None:
+            dialog.setNameFilter(filter)
+        if dir is None:
+            if self.last_default_dir is None:
+                dir = os.getcwd()
+            else:
+                dir = self.last_default_dir
+        if os.path.isfile(dir):
+            dir = os.path.dirname(dir)
+        self.last_default_dir = dir
+        dialog.setDirectory(dir)
+        dialog.setFileMode(qtw.QFileDialog.AnyFile)
+        if mode == 1 or mode == 'Save':
+            dialog.setAcceptMode(qtw.QFileDialog.AcceptSave)
+        dialog.setOptions(qtw.QFileDialog.DontUseNativeDialog | qtw.QFileDialog.DontConfirmOverwrite)
+        if dialog.exec_() == qtw.QDialog.Accepted:
+            # Get the file string and add default extension if not present.
+            file = str(dialog.selectedFiles()[0])
+        else:
+            file = ''
+        if mode == 0 or mode == 'Load':
+            if not os.path.exists(file):
+                file = ''
+        return file
 
 class About(qtw.QDialog):
 
