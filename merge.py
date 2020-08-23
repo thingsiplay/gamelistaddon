@@ -16,13 +16,19 @@ if __name__ == '__main__':
     parser.add_argument('--version', '-v', action='version', version=APP.VERSION)
     parser.add_argument('--base', '-b', metavar='file', required=True, type=str, help='Original gamelist.xml to compare against.')
     parser.add_argument('--add', '-a', metavar='file', required=True, type=str, help='Gamelist.xml file with new content to add.')
-    parser.add_argument('--output', '-o', metavar='file', required=False, type=str, help='Save resulting combined xml as new file. (optional)')
-    parser.add_argument('--log', '-l', metavar='file', required=False, type=str, help='Save new added games only as xml log file. (optional)')
+    parser.add_argument('--output', '-o', metavar='file', required=False, type=str, help='(optional) Save resulting combined xml as new file.')
+    parser.add_argument('--log', '-l', metavar='file', required=False, type=str, help='(optional) Save new added games only as xml log file.')
     parser.add_argument('--duplicate', '-d', metavar='mode', required=False, type=str, 
                         default='ignore', choices=['ignore', 'update'], 
                         help='(optional) What to do if game entry exist in base content?\nModes: "ignore" (default), "update"')
+    parser.add_argument('--tag', '-t', metavar='tagname', required=False, type=str, action='append', default=None,
+                        choices=['name', 'sortname', 'desc', 'developer', 'publisher', 'releasedate', 'genre', 'players', 
+                                 'path', 'thumbnail', 'image', 'marquee', 'video', 'rating', 'favorite', 'hidden', 'kidgame', 'lastplayed', 'playcount'],
+                        help='(optional) Limit updates to specified tags only, when using "-d update" mode. This argument can be specified multiple times.' \
+                             + ' Possible tags: name, sortname, desc, developer, publisher, releasedate, genre, players,' \
+                             + ' path, thumbnail, image, marquee, video, rating, favorite, hidden, kidgame, lastplayed, playcount')
     args = parser.parse_args()
-
+    
     try:
         original_file = args.base
         new_file = args.add
@@ -35,12 +41,12 @@ if __name__ == '__main__':
         new_root = ET.parse(new_file).getroot()
                 
         if args.duplicate == 'ignore':
-            mode = 'i'
+            duplicate_mode = 'i'
         elif args.duplicate == 'update':
-            mode = 'u'
+            duplicate_mode = 'u'
         else:
-            mode = None
-        diff_root = Convert.mergeGamelists(original_root, new_root, mode, APP.SOURCE)
+            duplicate_mode = None
+        diff_root = Convert.mergeGamelists(original_root, new_root, duplicate_mode, APP.SOURCE, args.tag)
         diff_paths, diff_names = Convert.gameRoot2pathsAndNames(diff_root)
                 
         if args.output is not None:

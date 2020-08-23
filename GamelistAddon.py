@@ -689,8 +689,9 @@ class MainWin(qtw.QMainWindow):
             d['kidgame'] = 'true'            
         return d
     
-    # Returns a list with all active tags in settings for merge update. 
-    # None just means all and should be treated as such. This is a shortcut.
+    # Returns a list with all active tags in settings for merge update.
+    # As a shortcut, the return value can be None too, which should be treated as 'all'.
+    # 
     def create_list_from_gui_updateonly(self):
         l = []
         if self.rb_useall_settings_merge.isChecked():
@@ -869,7 +870,7 @@ class MainWin(qtw.QMainWindow):
         return True if msgBox.exec() == qtw.QMessageBox.Ok else False
     
     # Show a standardized dialog for loading or saving files. Returns full path of file or an empty string if cancelled.
-    # In case of mode='load', the file will be checked if its exists. In case of mode='save', button is named 'save'
+    # In case of mode='Load', the file will be checked if its exists. In case of mode='Save', button is named 'save'
     # accordingly.
     def dialog_choose_file(self, title, filter=None, mode=None, dir=None):
         dialog = qtw.QFileDialog()
