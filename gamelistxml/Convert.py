@@ -37,6 +37,24 @@ def xmlTree2rootString(xml):
     xmlroot = ET.tostring(xmlroot, encoding="unicode")
     return xmlroot
 
+# Extract path and name lists from a game root.
+def gameRoot2pathsAndNames(games_root): 
+    diff_paths = []
+    diff_names = []
+    if games_root is not None:  
+        for game in games_root.findall('game'):
+            element = game.find('path')
+            if element is None or element.text is None:
+                diff_paths.append('')
+            else:
+                diff_paths.append(element.text)
+            element = game.find('name')
+            if element is None or element.text is None:
+                diff_names.append('')
+            else:
+                diff_names.append(element.text)
+    return diff_paths, diff_names
+
 # Adds missing games from new ElementTree root into original root. Check is done by path as id.
 # base_root is manipulated directly.
 # Returns new gameList root object with all new added games only.
@@ -130,24 +148,24 @@ def mergeGamelists(base_root, add_root, duplicate='i', source=None, updateonly=N
     indent(diff_root)
     return diff_root
 
-
-def gameRoot2pathsAndNames(games_root): 
-    diff_paths = []
-    diff_names = []
-    if games_root is not None:  
-        for game in games_root.findall('game'):
-            element = game.find('path')
-            if element is None or element.text is None:
-                diff_paths.append('')
-            else:
-                diff_paths.append(element.text)
-            element = game.find('name')
-            if element is None or element.text is None:
-                diff_names.append('')
-            else:
-                diff_names.append(element.text)
-    return diff_paths, diff_names
-
+# Checks if a game based on its path exist in a gamelist ElementTree xml root.
+# Basename of given path will be compared against each games path tags. 
+# Returns game root object if found, otherwise None.
+def gameInXmlRoot(xml_root, path):
+    base_path = os.path.basename(path)
+    game = None
+    for item in xml_root.getiterator('game'):
+        item_path = item.find('path')
+        if item_path is None:
+            item_path = ''
+        else:
+            item_path = item_path.text
+        if base_path == os.path.basename(item_path):
+            # Capture the item in its entirety, so it can be used to remove it later.
+            game = item
+            break
+    return game
+                            
 # https://stackoverflow.com/questions/3095434/inserting-newlines-in-xml-file-generated-via-xml-etree-elementtree-in-python#33956544
 #   by user: Erick M. Sprengel
 # Indents an xml root object from ElementTree.

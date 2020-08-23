@@ -520,20 +520,11 @@ class MainWin(qtw.QMainWindow):
 
                     # Proceed only if file was read correctly.
                     if file_xml_root is not None:
-                        # Now let's compare the basename of user input in path against all basename in path from
-                        # xml file on disk. If any duplicate is found, then stop searching.
-                        dupeCheck = os.path.basename(current_path)
-                        xml_gameFound = None
-                        for item in file_xml_root.getiterator('game'):
-                            itemPath = item.find('path')
-                            if itemPath is None:
-                                itemPath = ''
-                            else:
-                                itemPath = itemPath.text
-                            if dupeCheck == os.path.basename(itemPath):
-                                # Capture the item in its entirety, so it can be used to remove it later.
-                                xml_gameFound = item
-                                break
+                        
+                        # Search for basename of path in xml file. If a duplicate was detected,
+                        # return game entry, otherwise None.
+                        xml_gameFound = Convert.gameInXmlRoot(file_xml_root, current_path)
+                        
                         # Ask the user what to do if a game with same basename was found.
                         if xml_gameFound is not None:
                             # Game entry found in xml file. Ask to overwrite entry or abort.
@@ -541,7 +532,7 @@ class MainWin(qtw.QMainWindow):
                             msgBox.setIcon(qtw.QMessageBox.Question)
                             msgBox.setWindowTitle(APP.NAME + ' Overwrite XML')
                             msgBox.setText('Game entry collison! Game with same basename in path already exists in XML file.\n'
-                                           + 'Basename from path:\n\n"' + dupeCheck + '"\n\n'
+                                           + 'Basename from path:\n\n"' + os.path.basename(current_path) + '"\n\n'
                                            + 'Do you want replace the entire game entry and overwrite file?')
                             msgBox.setStandardButtons(qtw.QMessageBox.Yes | qtw.QMessageBox.No)
 
