@@ -282,6 +282,10 @@ class MainWin(qtw.QMainWindow):
     def rb_path_and_name_merge_clicked(self):
         self.update_log_text()
 
+    # Show a quick preview of the game xml data in a Message Box.
+    def b_preview_addgame_clicked(self):
+        self.msg_continue(self.get_xmlpreview(), f'{APP.NAME} XML Preview', 'Information')
+    
     # Ask user if all gui input content should be cleared.
     def b_new_addgame_clicked(self):
         if self.msg_continue('Do you want start a new game entry from scratch?', f'{APP.NAME} Delete', 'Warning'):
@@ -454,18 +458,19 @@ class MainWin(qtw.QMainWindow):
                         pass
             else:
                 self.statusbar.showMessage('No game loaded. Filters do not match.')
-
-    # Show a quick preview of the game xml data in a Message Box. This is what would be written to the file if save
-    # button was used.
-    def b_preview_addgame_clicked(self):
-        xml = self.create_dict_from_gui()
-        if 'desc' in xml and len(xml['desc']) > 80:
-            xml['desc'] = xml['desc'][:80] + '…'
+    
+    # Convert current entry fields from gui to xml format as a string representation. 
+    # Trim too long entries for quick showcase, in example for use in message boxes. 
+    # max_len is the max length for each entry data. 
+    def get_xmlpreview(self, max_len=80):
+        xml = self.create_dict_from_gui()        
+        for tag, value in xml.items():
+            if len(value) > max_len:
+                xml[tag] = value[:max_len] + '…'            
         xml = Convert.dict2xmlGameElement(xml, APP.SOURCE)
         xml = Convert.xmlElement2xmlTree(xml)
         xml = Convert.xmlTree2rootString(xml)
-        
-        self.msg_continue(xml, f'{APP.NAME} XML Preview', 'Information')
+        return xml
 
     # Add the game data to selected XML file. Create a new file or overwrite an existing one. If the game content
     # already exists, then ask the user what to do. The check is done by comparing the basename without directory part
