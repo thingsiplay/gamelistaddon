@@ -44,7 +44,7 @@ class MainWin(qtw.QMainWindow):
         self.actionAbout = self.findChild(qtw.QAction, 'actionAbout')
         self.actionClose = self.findChild(qtw.QAction, 'actionClose')
         self.actionReadme = self.findChild(qtw.QAction, 'actionReadme')
-        
+
         # Tab indexes
         self.tabindex_settings_merge = 2 # tab_3
 
@@ -114,7 +114,7 @@ class MainWin(qtw.QMainWindow):
         self.cb_favorite = self.findChild(qtw.QCheckBox, 'cb_favorite')
         self.cb_hidden = self.findChild(qtw.QCheckBox, 'cb_hidden')
         self.cb_kidgame = self.findChild(qtw.QCheckBox, 'cb_kidgame')
-        
+
         self.b_new_addgame = self.findChild(qtw.QPushButton, 'b_new_addgame')
         self.b_import_addgame = self.findChild(qtw.QPushButton, 'b_import_addgame')
         self.b_preview_addgame = self.findChild(qtw.QPushButton, 'b_preview_addgame')
@@ -127,16 +127,16 @@ class MainWin(qtw.QMainWindow):
         self.rb_path_merge = self.findChild(qtw.QRadioButton, 'rb_path_merge')
         self.rb_xml_merge = self.findChild(qtw.QRadioButton, 'rb_xml_merge')
         self.b_savelog_merge = self.findChild(qtw.QPushButton, 'b_savelog_merge')
-        
+
         self.rb_ignore_merge = self.findChild(qtw.QRadioButton, 'rb_ignore_merge')
         self.rb_update_merge = self.findChild(qtw.QRadioButton, 'rb_update_merge')
-        
+
         self.rb_useall_settings_merge = self.findChild(qtw.QRadioButton, 'rb_useall_settings_merge')
         self.rb_usecustom_settings_merge = self.findChild(qtw.QRadioButton, 'rb_usecustom_settings_merge')
-        
+
         self.b_selectnone_settings_merge = self.findChild(qtw.QPushButton, 'b_selectnone_settings_merge')
         self.b_selectall_settings_merge = self.findChild(qtw.QPushButton, 'b_selectall_settings_merge')
-        
+
         self.cb_name_settings_merge = self.findChild(qtw.QCheckBox, 'cb_name_settings_merge')
         self.cb_path_settings_merge = self.findChild(qtw.QCheckBox, 'cb_path_settings_merge')
         self.cb_image_settings_merge = self.findChild(qtw.QCheckBox, 'cb_image_settings_merge')
@@ -171,16 +171,16 @@ class MainWin(qtw.QMainWindow):
         self.rb_name_merge.clicked.connect(self.rb_path_and_name_merge_clicked)
         self.rb_path_merge.clicked.connect(self.rb_path_and_name_merge_clicked)
         self.rb_xml_merge.clicked.connect(self.rb_path_and_name_merge_clicked)
-        
+
         self.rb_ignore_merge.clicked.connect(self.rb_ignore_merge_clicked)
         self.rb_update_merge.clicked.connect(self.rb_update_merge_clicked)
-        
+
         self.rb_useall_settings_merge.clicked.connect(self.rb_useall_settings_merge_clicked)
         self.rb_usecustom_settings_merge.clicked.connect(self.rb_usecustom_settings_merge_clicked)
-        
+
         self.b_selectnone_settings_merge.clicked.connect(self.b_selectnone_settings_merge_clicked)
         self.b_selectall_settings_merge.clicked.connect(self.b_selectall_settings_merge_clicked)
-        
+
         # Groups and Layouts
         self.gb_log_merge = self.findChild(qtw.QGroupBox, 'gb_log_merge')
         self.gb_custom_settings_merge = self.findChild(qtw.QGroupBox, 'gb_custom_settings_merge')
@@ -202,11 +202,11 @@ class MainWin(qtw.QMainWindow):
         self.b_new_addgame.setStyleSheet(self.style_delete)
         self.tb_original_merge.setStyleSheet(self.style_toolimport)
         self.tb_new_merge.setStyleSheet(self.style_toolimport)
-        
+
         self.b_selectnone_settings_merge.setStyleSheet(self.style_delete)
         self.b_selectall_settings_merge.setStyleSheet(self.style_delete)
 
-        # Start by disabling the save buttons and defaults. 
+        # Start by disabling the save buttons and defaults.
         # If any of the texts is empty, the button will get disabled.
         self.le_path_textChanged()
         self.le_original_merge_textChanged()
@@ -214,7 +214,7 @@ class MainWin(qtw.QMainWindow):
         self.rb_ignore_merge_clicked()
         self.update_log_text()
         self.statusbar.showMessage('Ready.')
-        
+
         # Show Window
         self.setWindowTitle(f'{APP.NAME} v{APP.VERSION}')
         self.setWindowIcon(qtg.QIcon(':/Icons/img/winkemojis-wink.svg'))
@@ -232,21 +232,21 @@ class MainWin(qtw.QMainWindow):
         self.close()
 
     # Widget handlers
-    
+
     def rb_useall_settings_merge_clicked(self):
         self.gb_custom_settings_merge.setEnabled(False)
-    
+
     def rb_usecustom_settings_merge_clicked(self):
         self.gb_custom_settings_merge.setEnabled(True)
-    
+
     def rb_ignore_merge_clicked(self):
         self.rb_ignore_merge.setChecked(True)
-        self.rb_update_merge.setChecked(False)        
+        self.rb_update_merge.setChecked(False)
         self.tab_mode.setTabVisible(self.tabindex_settings_merge, False)
-    
+
     def rb_update_merge_clicked(self):
         self.rb_ignore_merge.setChecked(False)
-        self.rb_update_merge.setChecked(True)        
+        self.rb_update_merge.setChecked(True)
         self.tab_mode.setTabVisible(self.tabindex_settings_merge, True)
 
     def le_path_textChanged(self):
@@ -285,7 +285,7 @@ class MainWin(qtw.QMainWindow):
     # Show a quick preview of the game xml data in a Message Box.
     def b_preview_addgame_clicked(self):
         self.msg_continue(self.get_xmlpreview(), f'{APP.NAME} XML Preview', 'Information')
-    
+
     # Ask user if all gui input content should be cleared.
     def b_new_addgame_clicked(self):
         if self.msg_continue('Do you want start a new game entry from scratch?', f'{APP.NAME} Delete', 'Warning'):
@@ -312,7 +312,7 @@ class MainWin(qtw.QMainWindow):
             self.last_import_file = file
             self.le_new_merge.setText(file)
 
-    def b_selectnone_settings_merge_clicked(self):                      
+    def b_selectnone_settings_merge_clicked(self):
         self.cb_name_settings_merge.setChecked(False)
         self.cb_path_settings_merge.setChecked(False)
         self.cb_image_settings_merge.setChecked(False)
@@ -332,8 +332,8 @@ class MainWin(qtw.QMainWindow):
         self.cb_favorite_settings_merge.setChecked(False)
         self.cb_hidden_settings_merge.setChecked(False)
         self.cb_kidgame_settings_merge.setChecked(False)
-   
-    def b_selectall_settings_merge_clicked(self):                      
+
+    def b_selectall_settings_merge_clicked(self):
         self.cb_name_settings_merge.setChecked(True)
         self.cb_path_settings_merge.setChecked(True)
         self.cb_image_settings_merge.setChecked(True)
@@ -364,22 +364,22 @@ class MainWin(qtw.QMainWindow):
         try:
             active_filters.pop('favorite')
         except KeyError:
-            pass        
+            pass
         try:
             active_filters.pop('hidden')
         except KeyError:
-            pass        
+            pass
         try:
             active_filters.pop('kidgame')
         except KeyError:
             pass
-        
+
         try:
             xml_root = ET.parse(xml_file).getroot()
         except ET.ParseError as error:
             xml_root = None
             self.msg_show_error(f'Error! Could not parse gamelist XML file {str(error.position)}:\n{xml_file}', 'Critical', 'Could not read file.')
-        
+
         xml_gameFound = None
         if xml_root is not None:
             # Check if user made any input in the edit fields.
@@ -411,8 +411,8 @@ class MainWin(qtw.QMainWindow):
                 self.statusbar.showMessage('First game data loaded. No filter active.')
             # Finally if game is found, get its data and write to GUI edit fields.
             if xml_gameFound is not None:
-                
-                self.clear_all_input_fields()     
+
+                self.clear_all_input_fields()
                 # Go through each tag in the game element and write its text to the corresponding user edit fields,
                 # in example content of "name".
                 for tag in xml_gameFound.iter():
@@ -458,18 +458,18 @@ class MainWin(qtw.QMainWindow):
                         pass
             else:
                 self.statusbar.showMessage('No game loaded. Filters do not match.')
-    
-    # Convert current entry fields from gui to xml format as a string representation. 
-    # Trim too long entries for quick showcase, in example for use in message boxes. 
-    # max_len is the max length for each entry data. 
+
+    # Convert current entry fields from gui to xml format as a string representation.
+    # Trim too long entries for quick showcase, in example for use in message boxes.
+    # max_len is the max length for each entry data.
     def get_xmlpreview(self, max_len=80):
-        xml = self.create_dict_from_gui()        
+        xml = self.create_dict_from_gui()
         for tag, value in xml.items():
             if len(value) > max_len:
-                xml[tag] = value[:max_len] + '…'            
-        xml = Convert.dict2xmlGameElement(xml, APP.SOURCE)
-        xml = Convert.xmlElement2xmlTree(xml)
-        xml = Convert.xmlTree2rootString(xml)
+                xml[tag] = value[:max_len] + '…'
+        xml = Convert.dict_to_game_element(xml, APP.SOURCE)
+        xml = Convert.element_to_tree(xml)
+        xml = Convert.tree_to_string(xml)
         return xml
 
     # Add the game data to selected XML file. Create a new file or overwrite an existing one. If the game content
@@ -496,24 +496,24 @@ class MainWin(qtw.QMainWindow):
 
                     # The user xml data.
                     xml = self.create_dict_from_gui()
-                    xml_element = Convert.dict2xmlGameElement(xml, APP.SOURCE)
-                    xml_tree = Convert.xmlElement2xmlTree(xml_element)
+                    xml_element = Convert.dict_to_game_element(xml, APP.SOURCE)
+                    xml_tree = Convert.element_to_tree(xml_element)
 
                     # Load up xml file from disk.
                     try:
                         file_xml_root = ET.parse(file).getroot()
                     except ET.ParseError as error:
-                        
+
                         self.msg_show_error(f'Error! Could not parse gamelist XML file {str(error.position)}:\n{file}', 'Critical', 'Could not read file.')
                         file_xml_root = None
 
                     # Proceed only if file was read correctly.
                     if file_xml_root is not None:
-                        
+
                         # Search for basename of path in xml file. If a duplicate was detected,
                         # return game entry, otherwise None.
-                        xml_gameFound = Convert.gameInXmlRoot(file_xml_root, current_path)
-                        
+                        xml_gameFound = Convert.get_game_bypath(file_xml_root, current_path)
+
                         # Ask the user what to do if a game with same basename was found.
                         if xml_gameFound is not None:
                             # Game entry found in xml file. Ask to overwrite entry or abort.
@@ -538,9 +538,9 @@ class MainWin(qtw.QMainWindow):
                 # Write file from scratch with single game content.
                 else:
                     xml = self.create_dict_from_gui()
-                    xml = Convert.dict2xmlGameElement(xml, APP.SOURCE)
+                    xml = Convert.dict_to_game_element(xml, APP.SOURCE)
                     Convert.indent(xml)
-                    xml = Convert.xmlElement2xmlTree(xml)
+                    xml = Convert.element_to_tree(xml)
                     try:
                         xml.write(file, encoding="UTF-8", xml_declaration=None)
                         Convert.prepend_filecontent(file, "<?xml version=\"1.0\"?>\n")
@@ -578,7 +578,7 @@ class MainWin(qtw.QMainWindow):
                     if os.path.splitext(save_file)[1] == '' and not os.path.exists(save_file):
                         save_file = save_file + '.xml'
                     self.last_save_file = save_file
-                    
+
                     updateonly = self.create_list_from_gui_updateonly()
 
                     # Create the new combined data by merging both files.
@@ -588,11 +588,11 @@ class MainWin(qtw.QMainWindow):
                         duplicate_mode = 'u'
                     else:
                         duplicate_mode = None
-                    
+
                     # Main merge process
-                    self.diff_root = Convert.mergeGamelists(original_root, new_root, duplicate_mode, APP.SOURCE, updateonly)
-                    self.diff_paths, self.diff_names = Convert.gameRoot2pathsAndNames(self.diff_root)
-                    
+                    self.diff_root = Convert.merge_gamelists(original_root, new_root, duplicate_mode, APP.SOURCE, updateonly)
+                    self.diff_paths, self.diff_names = Convert.root_to_pathsnames(self.diff_root)
+
                     # Save process
                     save_tree = ET.ElementTree()
                     save_tree._setroot(original_root)
@@ -676,22 +676,22 @@ class MainWin(qtw.QMainWindow):
         if not self.le_players.text() == '':
             d['players'] = escape( self.le_players.text().strip() )
         if not self.le_rating.text() == '':
-            d['rating'] = escape( self.le_rating.text().strip() )            
+            d['rating'] = escape( self.le_rating.text().strip() )
         if not self.le_sortname.text() == '':
-            d['sortname'] = escape( self.le_sortname.text().strip() )            
+            d['sortname'] = escape( self.le_sortname.text().strip() )
         if not self.le_thumbnail.text() == '':
-            d['thumbnail'] = escape( self.le_thumbnail.text().strip() )            
+            d['thumbnail'] = escape( self.le_thumbnail.text().strip() )
         if self.cb_favorite.isChecked():
             d['favorite'] = 'true'
         if self.cb_hidden.isChecked():
             d['hidden'] = 'true'
         if self.cb_kidgame.isChecked():
-            d['kidgame'] = 'true'            
+            d['kidgame'] = 'true'
         return d
-    
+
     # Returns a list with all active tags in settings for merge update.
     # As a shortcut, the return value can be None too, which should be treated as 'all'.
-    # 
+    #
     def create_list_from_gui_updateonly(self):
         l = []
         if self.rb_useall_settings_merge.isChecked():
@@ -741,7 +741,7 @@ class MainWin(qtw.QMainWindow):
             if len(l) == 19:
                 l = None
         return l
-        
+
     # Delete all data in the input fields of the GUI.
     def clear_all_input_fields(self):
         self.le_name.clear()
@@ -809,7 +809,7 @@ class MainWin(qtw.QMainWindow):
         file = file.lstrip()
         file = file.rstrip()
         return file
-    
+
     # Dialog and Message Box related helper functions
     # Just a shorthand to show an error message box and print to terminal.
     def msg_show_error(self, message, type=None, short=None):
@@ -830,7 +830,7 @@ class MainWin(qtw.QMainWindow):
         self.statusbar.showMessage(short)
         print(message)
         msgBox.exec()
-    
+
     # A standard message asking to continue with process.
     # Title defaults to APP.NAME and type specifies icon and which button is default.
     # If user clicks Yes-button, then function returns True, otherwise False.
@@ -843,7 +843,7 @@ class MainWin(qtw.QMainWindow):
             msgBox.setDefaultButton(qtw.QMessageBox.Ok)
             msgBox.setEscapeButton(qtw.QMessageBox.No)
         # No question, just show an information.
-        elif type == 'Information':     
+        elif type == 'Information':
             msgBox.setIcon(qtw.QMessageBox.Information)
             msgBox.setStandardButtons(qtw.QMessageBox.Ok)
             msgBox.setDefaultButton(qtw.QMessageBox.Ok)
@@ -861,14 +861,14 @@ class MainWin(qtw.QMainWindow):
             msgBox.setEscapeButton(qtw.QMessageBox.Ok)
         else:
             raise ValueError('Wrong argument value for type in msg_continue().')
-                    
+
         if title is None:
             title == APP.NAME
         msgBox.setWindowTitle(title)
         msgBox.setText(message)
-        
+
         return True if msgBox.exec() == qtw.QMessageBox.Ok else False
-    
+
     # Show a standardized dialog for loading or saving files. Returns full path of file or an empty string if cancelled.
     # In case of mode='Load', the file will be checked if its exists. In case of mode='Save', button is named 'save'
     # accordingly.
