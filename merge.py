@@ -3,9 +3,10 @@
 """ Combine two gamelist.xml files to add missing game entries.
 
     Standalone commandline version of the merge functionality from
-    Gamelist Addon program. Usage:
+    Gamelist Addon program.
 
-        merge.py -h
+    Usage:
+        merge.py --help
         merge.py -b input1.xml -a input2.xml -o out.xml
 """
 
@@ -14,16 +15,16 @@ import sys
 import argparse
 import xml.etree.ElementTree as ET
 
-from gamelistxml import Convert
-from constants import App
+from gamelistxml import convert
+from constants import app
 
 if __name__ == '__main__':
-    APP = App.App(__file__)
+    APP = app.App(__file__)
 
     parser = argparse.ArgumentParser(
         prog='merge.py',
-        description=(f'merge.py from {APP.NAME}.  Combine '
-                     'two gamelist.xml files to add missing game entries.'))
+        description=(f'merge.py from {APP.NAME}.  Combine two gamelist.xml '
+                     'files to add missing game entries.'))
     parser.add_argument(
         '--version', '-v', action='version', version=APP.VERSION)
     parser.add_argument(
@@ -72,22 +73,22 @@ if __name__ == '__main__':
         else:
             DUPLICATE_MODE = None
         # Merge the xml files and get the diff for log.
-        diff_root = Convert.merge_gamelists(original_root, new_root,
-                                           DUPLICATE_MODE, APP.SOURCE,
-                                           args.tag)
-        diff_paths, diff_names = Convert.root_to_pathsnames(diff_root)
+        diff_root = convert.merge_gamelists(original_root, new_root,
+                                            DUPLICATE_MODE, APP.SOURCE,
+                                            args.tag)
+        diff_paths, diff_names = convert.root_to_pathsnames(diff_root)
         # Write the merged xml and diff log files.
         if args.output is not None:
             save_tree = ET.ElementTree()
             save_tree._setroot(original_root)
             save_tree.write(args.output, encoding='UTF-8',
                             xml_declaration=None)
-            Convert.prepend_filecontent(args.output, '<?xml version="1.0"?>\n')
+            convert.prepend_filecontent(args.output, '<?xml version="1.0"?>\n')
         if args.log is not None:
             save_tree = ET.ElementTree()
             save_tree._setroot(diff_root)
             save_tree.write(args.log, encoding='UTF-8', xml_declaration=None)
-            Convert.prepend_filecontent(args.log, '<?xml version="1.0"?>\n')
+            convert.prepend_filecontent(args.log, '<?xml version="1.0"?>\n')
     except Exception:
         print('ERROR')
     else:

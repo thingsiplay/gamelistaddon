@@ -1,23 +1,43 @@
 #!/usr/bin/python3
 
+""" GUI tool to add or merge game entries in a gamelist.xml files.
+
+    In the 'Add Game' view the user fills a form.  This data can be
+    saved to a new XML file in the format of gameList-structure for
+    EmulationStation.  It can also be added to an existing file.
+
+    The 'Merge Gamelists' view needs two gamelist.xml files as input.
+    It will then combine them into a new file by adding or updating
+    game-entries from those files.  Additionally a log with the new or
+    updated entries are displayed.
+
+    Look into README.md or README.html for more info.  Also the module
+    constants/app.py contains some meta information, such as the
+    projects version.
+
+    Usage:
+        ./GamelistAddon.py
+"""
+
 import os.path
 import sys
 import subprocess
 import xml.etree.ElementTree as ET
+from html import escape, unescape
 
 from PyQt5 import QtWidgets as qtw
 from PyQt5 import QtCore as qtc
 from PyQt5 import QtGui as qtg
-from html import escape, unescape
 
 from gui.MainWindow import Ui_MainWindow
 from gui.About import Ui_dialog_about
-from gamelistxml import Convert
-from constants import App
+from gamelistxml import convert
+from constants import app
 
 
 class MainWin(qtw.QMainWindow):
-
+    """ Main window and functionality of the application.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -46,7 +66,7 @@ class MainWin(qtw.QMainWindow):
         self.actionReadme = self.findChild(qtw.QAction, 'actionReadme')
 
         # Tab indexes
-        self.tabindex_settings_merge = 2 # tab_3
+        self.tabindex_settings_merge = 2  # tab_3
 
         # Menu handler connection
         self.actionAbout.triggered.connect(self.actionAbout_triggered)
@@ -86,27 +106,30 @@ class MainWin(qtw.QMainWindow):
         self.le_sortname = self.findChild(qtw.QLineEdit, 'le_sortname')
         self.le_thumbnail = self.findChild(qtw.QLineEdit, 'le_thumbnail')
 
-        self.le_original_merge = self.findChild(qtw.QLineEdit, 'le_original_merge')
+        self.le_original_merge = self.findChild(
+            qtw.QLineEdit, 'le_original_merge')
         self.le_new_merge = self.findChild(qtw.QLineEdit, 'le_new_merge')
-        self.pte_log_merge = self.findChild(qtw.QPlainTextEdit, 'pte_log_merge')
+        self.pte_log_merge = self.findChild(
+            qtw.QPlainTextEdit, 'pte_log_merge')
 
         # Edit Widgets handler connection
         self.le_path.textChanged.connect(self.le_path_textChanged)
 
-        self.le_original_merge.textChanged.connect(self.le_original_merge_textChanged)
+        self.le_original_merge.textChanged.connect(
+            self.le_original_merge_textChanged)
         self.le_new_merge.textChanged.connect(self.le_new_merge_textChanged)
 
         # Edit Widgets validators
-        reg_ex = qtc.QRegExp('[1-2]\d\d\d?([01]\d?([0-3]\d)?)?')
+        reg_ex = qtc.QRegExp(r'[1-2]\d\d\d?([01]\d?([0-3]\d)?)?')
         input_validator = qtg.QRegExpValidator(reg_ex, self.le_releasedate)
         self.le_releasedate.setValidator(input_validator)
 
-        reg_ex = qtc.QRegExp('[1-9]\d?')
+        reg_ex = qtc.QRegExp(r'[1-9]\d?')
         input_validator = qtg.QRegExpValidator(reg_ex, self.le_players)
         self.le_players.setValidator(input_validator)
 
         self.le_rating = self.findChild(qtw.QLineEdit, 'le_rating')
-        reg_ex = qtc.QRegExp('(0\.\d\d|1\.00)')
+        reg_ex = qtc.QRegExp(r'(0\.\d\d|1\.00)')
         input_validator = qtg.QRegExpValidator(reg_ex, self.le_rating)
         self.le_rating.setValidator(input_validator)
 
@@ -116,46 +139,75 @@ class MainWin(qtw.QMainWindow):
         self.cb_kidgame = self.findChild(qtw.QCheckBox, 'cb_kidgame')
 
         self.b_new_addgame = self.findChild(qtw.QPushButton, 'b_new_addgame')
-        self.b_import_addgame = self.findChild(qtw.QPushButton, 'b_import_addgame')
-        self.b_preview_addgame = self.findChild(qtw.QPushButton, 'b_preview_addgame')
+        self.b_import_addgame = self.findChild(
+            qtw.QPushButton, 'b_import_addgame')
+        self.b_preview_addgame = self.findChild(
+            qtw.QPushButton, 'b_preview_addgame')
         self.b_save_addgame = self.findChild(qtw.QPushButton, 'b_save_addgame')
 
-        self.tb_original_merge = self.findChild(qtw.QToolButton, 'tb_original_merge')
+        self.tb_original_merge = self.findChild(
+            qtw.QToolButton, 'tb_original_merge')
         self.tb_new_merge = self.findChild(qtw.QToolButton, 'tb_new_merge')
         self.b_save_merge = self.findChild(qtw.QPushButton, 'b_save_merge')
         self.rb_name_merge = self.findChild(qtw.QRadioButton, 'rb_name_merge')
         self.rb_path_merge = self.findChild(qtw.QRadioButton, 'rb_path_merge')
         self.rb_xml_merge = self.findChild(qtw.QRadioButton, 'rb_xml_merge')
-        self.b_savelog_merge = self.findChild(qtw.QPushButton, 'b_savelog_merge')
+        self.b_savelog_merge = self.findChild(
+            qtw.QPushButton, 'b_savelog_merge')
 
-        self.rb_ignore_merge = self.findChild(qtw.QRadioButton, 'rb_ignore_merge')
-        self.rb_update_merge = self.findChild(qtw.QRadioButton, 'rb_update_merge')
+        self.rb_ignore_merge = self.findChild(
+            qtw.QRadioButton, 'rb_ignore_merge')
+        self.rb_update_merge = self.findChild(
+            qtw.QRadioButton, 'rb_update_merge')
 
-        self.rb_useall_settings_merge = self.findChild(qtw.QRadioButton, 'rb_useall_settings_merge')
-        self.rb_usecustom_settings_merge = self.findChild(qtw.QRadioButton, 'rb_usecustom_settings_merge')
+        self.rb_useall_settings_merge = self.findChild(
+            qtw.QRadioButton, 'rb_useall_settings_merge')
+        self.rb_usecustom_settings_merge = self.findChild(
+            qtw.QRadioButton, 'rb_usecustom_settings_merge')
 
-        self.b_selectnone_settings_merge = self.findChild(qtw.QPushButton, 'b_selectnone_settings_merge')
-        self.b_selectall_settings_merge = self.findChild(qtw.QPushButton, 'b_selectall_settings_merge')
+        self.b_selectnone_settings_merge = self.findChild(
+            qtw.QPushButton, 'b_selectnone_settings_merge')
+        self.b_selectall_settings_merge = self.findChild(
+            qtw.QPushButton, 'b_selectall_settings_merge')
 
-        self.cb_name_settings_merge = self.findChild(qtw.QCheckBox, 'cb_name_settings_merge')
-        self.cb_path_settings_merge = self.findChild(qtw.QCheckBox, 'cb_path_settings_merge')
-        self.cb_image_settings_merge = self.findChild(qtw.QCheckBox, 'cb_image_settings_merge')
-        self.cb_marquee_settings_merge = self.findChild(qtw.QCheckBox, 'cb_marquee_settings_merge')
-        self.cb_video_settings_merge = self.findChild(qtw.QCheckBox, 'cb_video_settings_merge')
-        self.cb_desc_settings_merge = self.findChild(qtw.QCheckBox, 'cb_desc_settings_merge')
-        self.cb_developer_settings_merge = self.findChild(qtw.QCheckBox, 'cb_developer_settings_merge')
-        self.cb_publisher_settings_merge = self.findChild(qtw.QCheckBox, 'cb_publisher_settings_merge')
-        self.cb_releasedate_settings_merge = self.findChild(qtw.QCheckBox, 'cb_releasedate_settings_merge')
-        self.cb_genre_settings_merge = self.findChild(qtw.QCheckBox, 'cb_genre_settings_merge')
-        self.cb_players_settings_merge = self.findChild(qtw.QCheckBox, 'cb_players_settings_merge')
-        self.cb_rating_settings_merge = self.findChild(qtw.QCheckBox, 'cb_rating_settings_merge')
-        self.cb_lastplayed_settings_merge = self.findChild(qtw.QCheckBox, 'cb_lastplayed_settings_merge')
-        self.cb_playcount_settings_merge = self.findChild(qtw.QCheckBox, 'cb_playcount_settings_merge')
-        self.cb_sortname_settings_merge = self.findChild(qtw.QCheckBox, 'cb_sortname_settings_merge')
-        self.cb_thumbnail_settings_merge = self.findChild(qtw.QCheckBox, 'cb_thumbnail_settings_merge')
-        self.cb_favorite_settings_merge = self.findChild(qtw.QCheckBox, 'cb_favorite_settings_merge')
-        self.cb_hidden_settings_merge = self.findChild(qtw.QCheckBox, 'cb_hidden_settings_merge')
-        self.cb_kidgame_settings_merge = self.findChild(qtw.QCheckBox, 'cb_kidgame_settings_merge')
+        self.cb_name_settings_merge = self.findChild(
+            qtw.QCheckBox, 'cb_name_settings_merge')
+        self.cb_path_settings_merge = self.findChild(
+            qtw.QCheckBox, 'cb_path_settings_merge')
+        self.cb_image_settings_merge = self.findChild(
+            qtw.QCheckBox, 'cb_image_settings_merge')
+        self.cb_marquee_settings_merge = self.findChild(
+            qtw.QCheckBox, 'cb_marquee_settings_merge')
+        self.cb_video_settings_merge = self.findChild(
+            qtw.QCheckBox, 'cb_video_settings_merge')
+        self.cb_desc_settings_merge = self.findChild(
+            qtw.QCheckBox, 'cb_desc_settings_merge')
+        self.cb_developer_settings_merge = self.findChild(
+            qtw.QCheckBox, 'cb_developer_settings_merge')
+        self.cb_publisher_settings_merge = self.findChild(
+            qtw.QCheckBox, 'cb_publisher_settings_merge')
+        self.cb_releasedate_settings_merge = self.findChild(
+            qtw.QCheckBox, 'cb_releasedate_settings_merge')
+        self.cb_genre_settings_merge = self.findChild(
+            qtw.QCheckBox, 'cb_genre_settings_merge')
+        self.cb_players_settings_merge = self.findChild(
+            qtw.QCheckBox, 'cb_players_settings_merge')
+        self.cb_rating_settings_merge = self.findChild(
+            qtw.QCheckBox, 'cb_rating_settings_merge')
+        self.cb_lastplayed_settings_merge = self.findChild(
+            qtw.QCheckBox, 'cb_lastplayed_settings_merge')
+        self.cb_playcount_settings_merge = self.findChild(
+            qtw.QCheckBox, 'cb_playcount_settings_merge')
+        self.cb_sortname_settings_merge = self.findChild(
+            qtw.QCheckBox, 'cb_sortname_settings_merge')
+        self.cb_thumbnail_settings_merge = self.findChild(
+            qtw.QCheckBox, 'cb_thumbnail_settings_merge')
+        self.cb_favorite_settings_merge = self.findChild(
+            qtw.QCheckBox, 'cb_favorite_settings_merge')
+        self.cb_hidden_settings_merge = self.findChild(
+            qtw.QCheckBox, 'cb_hidden_settings_merge')
+        self.cb_kidgame_settings_merge = self.findChild(
+            qtw.QCheckBox, 'cb_kidgame_settings_merge')
 
         # Button Widgets handler connection
         self.b_new_addgame.clicked.connect(self.b_new_addgame_clicked)
@@ -175,21 +227,30 @@ class MainWin(qtw.QMainWindow):
         self.rb_ignore_merge.clicked.connect(self.rb_ignore_merge_clicked)
         self.rb_update_merge.clicked.connect(self.rb_update_merge_clicked)
 
-        self.rb_useall_settings_merge.clicked.connect(self.rb_useall_settings_merge_clicked)
-        self.rb_usecustom_settings_merge.clicked.connect(self.rb_usecustom_settings_merge_clicked)
+        self.rb_useall_settings_merge.clicked.connect(
+            self.rb_useall_settings_merge_clicked)
+        self.rb_usecustom_settings_merge.clicked.connect(
+            self.rb_usecustom_settings_merge_clicked)
 
-        self.b_selectnone_settings_merge.clicked.connect(self.b_selectnone_settings_merge_clicked)
-        self.b_selectall_settings_merge.clicked.connect(self.b_selectall_settings_merge_clicked)
+        self.b_selectnone_settings_merge.clicked.connect(
+            self.b_selectnone_settings_merge_clicked)
+        self.b_selectall_settings_merge.clicked.connect(
+            self.b_selectall_settings_merge_clicked)
 
         # Groups and Layouts
         self.gb_log_merge = self.findChild(qtw.QGroupBox, 'gb_log_merge')
-        self.gb_custom_settings_merge = self.findChild(qtw.QGroupBox, 'gb_custom_settings_merge')
+        self.gb_custom_settings_merge = self.findChild(
+            qtw.QGroupBox, 'gb_custom_settings_merge')
 
         # Style sheets defaults
-        self.style_save = 'QPushButton{ background: azure; color: blue; }'
-        self.style_import = 'QPushButton{ background: honeydew; color: green; }'
-        self.style_toolimport = 'QToolButton{ background: honeydew; color: green; }'
-        self.style_delete = 'QPushButton{ background: seashell; color: sandybrown; }'
+        style = 'QPushButton{ background: azure; color: blue; }'
+        self.style_save = style
+        style = 'QPushButton{ background: honeydew; color: green; }'
+        self.style_import = style
+        style = 'QToolButton{ background: honeydew; color: green; }'
+        self.style_toolimport = style
+        style = 'QPushButton{ background: seashell; color: sandybrown; }'
+        self.style_delete = style
 
         # Style sheets apply
         self.b_save_addgame.setStyleSheet(self.style_save)
@@ -223,7 +284,7 @@ class MainWin(qtw.QMainWindow):
     # Menu handlers
 
     def actionReadme_triggered(self):
-        self.run_with_default_app(os.path.join(APP.INSTALLDIR, 'README.html'))
+        self.run_with_default_app(os.path.join(APP.DIR, 'README.html'))
 
     def actionAbout_triggered(self):
         about.show()
@@ -282,37 +343,47 @@ class MainWin(qtw.QMainWindow):
     def rb_path_and_name_merge_clicked(self):
         self.update_log_text()
 
-    # Show a quick preview of the game xml data in a Message Box.
     def b_preview_addgame_clicked(self):
-        self.msg_continue(self.get_xmlpreview(), f'{APP.NAME} XML Preview', 'Information')
+        """ Show preview of the game xml data message box. """
+        self.msg_continue(self.get_xmlpreview(),
+                          f'{APP.NAME} XML Preview', 'Information')
 
-    # Ask user if all gui input content should be cleared.
     def b_new_addgame_clicked(self):
-        if self.msg_continue('Do you want start a new game entry from scratch?', f'{APP.NAME} Delete', 'Warning'):
+        """ Ask user if all gui input content should be cleared. """
+        msg = 'Do you want start a new game entry from scratch?'
+        if self.msg_continue(msg, f'{APP.NAME} Delete', 'Warning'):
             self.clear_all_input_fields()
 
-    # Select a file and search for a matching game content. Fill all fields by the data from gamelist.xml file.
     def b_import_addgame_clicked(self):
-        file = self.dialog_choose_file('Choose a gamelist.xml file to read an entry', '*.xml', mode='Load', dir=self.last_import_file)
+        """ Select a file and search for a matching game content.
+        Fill all fields by the data from gamelist.xml file. """
+        msg = 'Choose a gamelist.xml file to read an entry'
+        file = self.dialog_choose_file(msg, '*.xml', mode='Load',
+                                       dir=self.last_import_file)
         if len(file) > 0:
             self.last_import_file = file
             self.fill_guiedits_by_xml(file)
 
-    # Select a file with original gamelist.xml content for merge operation.
     def tb_original_merge_clicked(self):
-        file = self.dialog_choose_file('Choose old base gamelist.xml file to compare to.', '*.xml', mode='Load', dir=self.last_import_file)
+        """ Select a file with original content to merge. """
+        msg = 'Choose old base gamelist.xml file to compare to.'
+        file = self.dialog_choose_file(msg, '*.xml', mode='Load',
+                                       dir=self.last_import_file)
         if len(file) > 0:
             self.last_import_file = file
             self.le_original_merge.setText(file)
 
-    # Select a file with new gamelist.xml content for merge operation.
     def tb_new_merge_clicked(self):
-        file = self.dialog_choose_file('Choose new gamelist.xml file with additional data to append.', '*.xml', mode='Load', dir=self.last_import_file)
+        """ Select a file with original content to append. """
+        msg = 'Choose new gamelist.xml with additional data to append.'
+        file = self.dialog_choose_file(msg, '*.xml', mode='Load',
+                                       dir=self.last_import_file)
         if len(file) > 0:
             self.last_import_file = file
             self.le_new_merge.setText(file)
 
     def b_selectnone_settings_merge_clicked(self):
+        """ Deselect all tags in settings for merge update. """
         self.cb_name_settings_merge.setChecked(False)
         self.cb_path_settings_merge.setChecked(False)
         self.cb_image_settings_merge.setChecked(False)
@@ -334,6 +405,7 @@ class MainWin(qtw.QMainWindow):
         self.cb_kidgame_settings_merge.setChecked(False)
 
     def b_selectall_settings_merge_clicked(self):
+        """ Select all tags in settings for merge update. """
         self.cb_name_settings_merge.setChecked(True)
         self.cb_path_settings_merge.setChecked(True)
         self.cb_image_settings_merge.setChecked(True)
@@ -354,11 +426,20 @@ class MainWin(qtw.QMainWindow):
         self.cb_hidden_settings_merge.setChecked(True)
         self.cb_kidgame_settings_merge.setChecked(True)
 
-    # Actual function to parse gamelist.xml and search for matching content. Each input field with an active content
-    # will be used to search game. Only one of the filters need to match for a match to be considered successfull. All
-    # existing data in the GUIs edit fields will be wiped out and filled with found data.
-    # Import button
     def fill_guiedits_by_xml(self, xml_file):
+        """ Fill out form by selected XML file.
+
+        Opens a XML file with a gameList structure and searches for a
+        game to read.  The User entries in 'Add Game' view from the
+        GUI are used as filters.  A game matching one of the filters
+        is considered to be a match and will be read entirely to fill
+        out its data to the GUI.
+
+        Parameters
+        ----------
+        xml_file : str
+            Path to a XML file in gamelist.xml format.
+        """
         active_filters = self.create_dict_from_gui()
         # remove bool filters, as they do not work currently
         try:
@@ -378,26 +459,36 @@ class MainWin(qtw.QMainWindow):
             xml_root = ET.parse(xml_file).getroot()
         except ET.ParseError as error:
             xml_root = None
-            self.msg_show_error(f'Error! Could not parse gamelist XML file {str(error.position)}:\n{xml_file}', 'Critical', 'Could not read file.')
+            msg = 'Error! Could not parse gamelist XML file '
+            msg = f'{msg} {str(error.position)}:\n{xml_file}'
+            self.msg_show_error(msg, 'Critical', 'Could not read file.')
 
         xml_gameFound = None
         if xml_root is not None:
             # Check if user made any input in the edit fields.
-            if len(active_filters) > 0:
+            if active_filters:
                 # Each item is a full game Element with all its subelements.
                 for game_element in xml_root.findall('game'):
-                    # Each filter is the name of the edit field, which has a content on the gui, in example "path"
-                    # or "name". Only one of the active filters need to match to get first found game.
+                    # Each filter is the name of the edit field, which has a
+                    # content on the gui, in example "path" or "name". Only
+                    # one of the active filters need to match to get first
+                    # found game.
                     for filter_name in active_filters:
-                        # Check if game Element from XML file have a subelement with same of the filter, like "path"
-                        # or "name".
+                        # Check if game Element from XML file have a
+                        # subelement with same of the filter, like "path" or
+                        # "name".
                         if game_element.findtext(filter_name) is not None:
-                            # Check if current active filters content, in example "0.65" or "Mario" matches the
-                            # content from corresponding tag content in XML file.
-                            if active_filters[filter_name] in unescape(game_element.findtext(filter_name)):
-                                # Single filter match is enough. Consider game found and break out through all loops.
+                            # Check if current active filters content, in
+                            # example "0.65" or "Mario" matches the content
+                            # from corresponding tag content in XML file.
+                            name_ = game_element.findtext(filter_name)
+                            if active_filters[filter_name] in unescape(name_):
+                                # Single filter match is enough. Consider game
+                                # found and break out through all loops.
                                 xml_gameFound = game_element
-                                self.statusbar.showMessage(f'Game data loaded by matching filter: {filter_name}')
+                                msg = 'Game data loaded by matching filter:'
+                                msg = f'{msg} {filter_name}'
+                                self.statusbar.showMessage(msg)
                                 break
                         # End of "for filter_name"
                         if xml_gameFound:
@@ -405,15 +496,18 @@ class MainWin(qtw.QMainWindow):
                     # Emd of "for game_element"
                     if xml_gameFound:
                         break
-            # End of "if len(active_filters)". No filter set in gui. Get first found entry from xml.
+            # End of "if len(active_filters)". No filter set in gui. Get first
+            # found entry from xml.
             else:
                 xml_gameFound = xml_root.find('game')
-                self.statusbar.showMessage('First game data loaded. No filter active.')
-            # Finally if game is found, get its data and write to GUI edit fields.
-            if xml_gameFound is not None:
+                msg = 'First game data loaded. No filter active.'
+                self.statusbar.showMessage(msg)
 
+            # Finally if game is found, get data and write to GUI edit fields.
+            if xml_gameFound is not None:
                 self.clear_all_input_fields()
-                # Go through each tag in the game element and write its text to the corresponding user edit fields,
+                # Go through each tag in the game element and write its text
+                # to the corresponding user edit fields,
                 # in example content of "name".
                 for tag in xml_gameFound.iter():
                     try:
@@ -457,37 +551,59 @@ class MainWin(qtw.QMainWindow):
                     except TypeError:
                         pass
             else:
-                self.statusbar.showMessage('No game loaded. Filters do not match.')
+                self.statusbar.showMessage('No game. Filters do not match.')
 
-    # Convert current entry fields from gui to xml format as a string representation.
-    # Trim too long entries for quick showcase, in example for use in message boxes.
-    # max_len is the max length for each entry data.
     def get_xmlpreview(self, max_len=80):
+        """ Creates a XML representation of current GUI form.
+
+        Convert current entry fields from gui to xml format as a
+        string representation.  Trim too long entries for quick
+        showcase, in example for use in a message box, before saving
+        to file.
+
+        Parameters
+        ----------
+        max_len : int
+            Defines the maximum character length for each tag text.  If
+            the text exceeds this limit, it will be truncated and the
+            character '…' is added.
+        """
         xml = self.create_dict_from_gui()
         for tag, value in xml.items():
             if len(value) > max_len:
                 xml[tag] = value[:max_len] + '…'
-        xml = Convert.dict_to_game_element(xml, APP.SOURCE)
-        xml = Convert.element_to_tree(xml)
-        xml = Convert.tree_to_string(xml)
+        xml = convert.dict_to_element(xml, 'game', APP.SOURCE)
+        xml = convert.element_to_tree(xml)
+        xml = convert.tree_to_string(xml)
         return xml
 
-    # Add the game data to selected XML file. Create a new file or overwrite an existing one. If the game content
-    # already exists, then ask the user what to do. The check is done by comparing the basename without directory part
-    # in "path". Unless there is no basename, then the strings will be used as it is.
     def b_save_addgame_clicked(self):
-        # The current path of user input will be used as an identification to find duplicate entry. It will compare
-        # basename only.
+        """ Add game data from GUI form to selected XML file.
+
+        Convert current entry fields from gui to xml format and add to
+        a selected XML file.  Create a new file or overwrite an
+        existing one.  In case of adding the data to an existing file,
+        the function will search if the game already exist in the file.
+        For this matter, it compares the basename of the path-tag from
+        user form and the file.
+        """
+        # The current path of user input will be used as an identification to
+        # find duplicate entry. It will compare basename only.
         current_path = self.le_path.text().strip()
         if current_path == '' or len(os.path.basename(current_path)) == 0:
-            self.msg_show_error('No filename in path. Filename required to save an xml game entry.', 'Warning', 'No file.')
+            msg = 'Filename in path required to save an xml game entry.'
+            self.msg_show_error(msg, 'Warning', 'No file.')
         else:
-            file = self.dialog_choose_file('Save game data. Overwrite existing or create new file.', '*.xml', mode='Save', dir=self.last_save_file)
+            msg = 'Save game data. Overwrite existing or create new file.'
+            file = self.dialog_choose_file(msg, '*.xml', mode='Save',
+                                           dir=self.last_save_file)
             if len(file) > 0:
-                # Add extension in case it is missing and the file does not exist.
-                if os.path.splitext(file)[1] == '' and not os.path.exists(file):
-                    file = file + '.xml'
-
+                # Add extension in case its missing and file does not exist.
+                if (os.path.splitext(file)[1]
+                        == '' and not os.path.exists(file)):
+                    file = f'{file}.xml'
+                # Remember last used file, so next time a file is selected the
+                # last folder can be used as starting point.
                 self.last_save_file = file
 
                 # Overwrite existing file or create from scratch.
@@ -496,86 +612,120 @@ class MainWin(qtw.QMainWindow):
 
                     # The user xml data.
                     xml = self.create_dict_from_gui()
-                    xml_element = Convert.dict_to_game_element(xml, APP.SOURCE)
-                    xml_tree = Convert.element_to_tree(xml_element)
+                    xml_element = convert.dict_to_element(xml, 'game',
+                                                          APP.SOURCE)
+                    xml_tree = convert.element_to_tree(xml_element)
 
                     # Load up xml file from disk.
                     try:
                         file_xml_root = ET.parse(file).getroot()
                     except ET.ParseError as error:
 
-                        self.msg_show_error(f'Error! Could not parse gamelist XML file {str(error.position)}:\n{file}', 'Critical', 'Could not read file.')
+                        msg = 'Error! Could not parse gamelist XML file'
+                        msg = f'{msg} {str(error.position)}:\n{file}'
+                        self.msg_show_error(msg, 'Critical',
+                                            'Could not read file.')
                         file_xml_root = None
 
                     # Proceed only if file was read correctly.
                     if file_xml_root is not None:
 
-                        # Search for basename of path in xml file. If a duplicate was detected,
-                        # return game entry, otherwise None.
-                        xml_gameFound = Convert.get_game_bypath(file_xml_root, current_path)
+                        # Search for basename of path in. If a duplicate was
+                        # detected, return game entry, otherwise None.
+                        xml_gameFound = convert.get_game_bypath(
+                            file_xml_root, current_path)
 
-                        # Ask the user what to do if a game with same basename was found.
+                        # Ask the user what to do if a game was found.
                         if xml_gameFound is not None:
-                            # Game entry found in xml file. Ask to overwrite entry or abort.
-                            message = 'Game entry collison! Game with same basename in path already exists in XML file.\n' \
-                                    + f'Basename from path:\n\n"{os.path.basename(current_path)}"\n\n' \
-                                    + 'Do you want replace the entire game entry and overwrite file?'
-                            removeGame = self.msg_continue(message, f'{APP.NAME} Overwrite XML', 'Question')
+                            # Game entry found in xml file. Ask to what to do.
+                            msg = ('Game entry collison! Game with same '
+                                   'basename in path already exists in '
+                                   'XML file.\n'
+                                   'Basename from path:\n\n'
+                                   f'"{os.path.basename(current_path)}"\n\n'
+                                   'Do you want replace the entire game '
+                                   'entry and overwrite file?')
+                            removeGame = self.msg_continue(
+                                msg, f'{APP.NAME} Overwrite XML', 'Question')
                             if removeGame:
                                 file_xml_root.remove(xml_gameFound)
-                        # Append new game entry and write to file. Any existing entry should be removed prior to this.
+                        # Append new game entry and write to file.  Any
+                        # existing entry should be removed prior to this.
                         if xml_gameFound is None or removeGame:
                             file_xml_root.append(xml_element)
                             xml_tree = ET.ElementTree()
-                            Convert.indent(file_xml_root)
+                            convert.indent(file_xml_root)
                             xml_tree._setroot(file_xml_root)
                             try:
-                                xml_tree.write(file, encoding="UTF-8", xml_declaration=None)
-                                Convert.prepend_filecontent(file, "<?xml version=\"1.0\"?>\n")
-                                self.statusbar.showMessage(f'File saved to: {file}')
+                                xml_tree.write(file, encoding='UTF-8',
+                                               xml_declaration=None)
+                                convert.prepend_filecontent(
+                                    file, '<?xml version="1.0"?>\n')
+                                self.statusbar.showMessage(
+                                    f'File saved to: {file}')
                             except OSError:
-                                self.msg_show_error(f'Error! Could not write to file: \n{file}', 'Critical', 'File not saved.')
+                                msg = 'Error! Could not write to file:'
+                                msg = f'{msg}\n{file}'
+                                self.msg_show_error(
+                                    msg, 'Critical', 'File not saved.')
                 # Write file from scratch with single game content.
                 else:
                     xml = self.create_dict_from_gui()
-                    xml = Convert.dict_to_game_element(xml, APP.SOURCE)
-                    Convert.indent(xml)
-                    xml = Convert.element_to_tree(xml)
+                    xml = convert.dict_to_element(xml, 'game', APP.SOURCE)
+                    convert.indent(xml)
+                    xml = convert.element_to_tree(xml)
                     try:
-                        xml.write(file, encoding="UTF-8", xml_declaration=None)
-                        Convert.prepend_filecontent(file, "<?xml version=\"1.0\"?>\n")
+                        xml.write(file, encoding='UTF-8', xml_declaration=None)
+                        convert.prepend_filecontent(file,
+                                                    '<?xml version="1.0"?>\n')
                         self.statusbar.showMessage(f'File saved to: {file}')
                     except OSError:
-                        self.msg_show_error(f'Error! Could not write to new file:\n{file}', 'Warning', 'File not saved.')
+                        msg = 'Error! Could not write to new file:'
+                        msg = f'{msg}\n{file}'
+                        self.msg_show_error(msg, 'Warning', 'File not saved.')
 
-
-    # Takes two xml files and merges them into one file. All game entries missing in original file will be added from
-    # new file. Existing entries are not touched. To determine if a game exists, the path of it will be used as an
-    # identifier.
-    # The user is asked to select two files and then an output file. After the process is done, a log with all added
-    # games will be displayed in the log area.
     def b_save_merge_clicked(self):
+        """ Merges two selected gamelist.xml files into new version.
+
+        Takes two XML files in gamelist.xml format and merges them into
+        one file.  All game entries missing in original file will be
+        added to new file, based on the current settings.  After the
+        process is done, a log with all added or updated games will be
+        displayed in the log area.
+        """
         original_file = self.le_original_merge.text()
         new_file = self.le_new_merge.text()
-        if not os.path.exists(original_file) :
-            self.msg_show_error(f'File from input field do not exist. Original:\n{original_file}', 'Critical', 'File does not exist.')
+        if not os.path.exists(original_file):
+            msg = 'File from input field do not exist. Original:'
+            msg = f'{msg}\n{original_file}'
+            self.msg_show_error(msg, 'Critical', 'File does not exist.')
         elif not os.path.exists(new_file):
-            self.msg_show_error(f'File from input field do not exist. New:\n{new_file}', 'Critical', 'File does not exist.')
+            msg = 'File from input field do not exist. New:'
+            msg = f'{msg}\n{new_file}'
+            self.msg_show_error(msg, 'Critical', 'File does not exist.')
         elif os.path.samefile(original_file, new_file):
-            self.msg_show_error(f'Both paths from input point to same file:\n{new_file}', 'Critical', 'Identical files.')
+            msg = 'Both paths from input point to same file:'
+            msg = f'{msg}\n{new_file}'
+            self.msg_show_error(msg, 'Critical', 'Identical files.')
         else:
             try:
-                e = original_file
+                e_file = original_file
                 original_root = ET.parse(original_file).getroot()
-                e = new_file
+                e_file = new_file
                 new_root = ET.parse(new_file).getroot()
             except ET.ParseError as error:
-                self.msg_show_error(f'Error! Could not parse gamelist XML file {str(error.position)}:\n{e}', 'Critical', 'Could not read file.')
+                msg = 'Error! Could not parse gamelist XML file'
+                msg = f'{msg} {str(error.position)}:\n{e_file}'
+                self.msg_show_error(msg, 'Critical', 'Could not read file.')
             else:
-                save_file = self.dialog_choose_file('Merge and save. Overwrite existing or create new file.', '*.xml', mode='Save', dir=self.last_save_file)
+                msg = 'Merge and save. Overwrite or create new file.'
+                save_file = self.dialog_choose_file(
+                    msg, '*.xml', mode='Save', dir=self.last_save_file)
                 if len(save_file) > 0:
-                    # Add extension in case it is missing and the file does not exist.
-                    if os.path.splitext(save_file)[1] == '' and not os.path.exists(save_file):
+                    # Add extension in case it is missing and the file does
+                    # not exist.
+                    if (os.path.splitext(save_file)[1]
+                            == '' and not os.path.exists(save_file)):
                         save_file = save_file + '.xml'
                     self.last_save_file = save_file
 
@@ -590,18 +740,26 @@ class MainWin(qtw.QMainWindow):
                         duplicate_mode = None
 
                     # Main merge process
-                    self.diff_root = Convert.merge_gamelists(original_root, new_root, duplicate_mode, APP.SOURCE, updateonly)
-                    self.diff_paths, self.diff_names = Convert.root_to_pathsnames(self.diff_root)
+                    self.diff_root = convert.merge_gamelists(
+                        original_root, new_root, duplicate_mode, APP.SOURCE,
+                        updateonly)
+                    paths_, names_ = convert.root_to_pathsnames(self.diff_root)
+                    self.diff_paths, self.diff_names = paths_, names_
 
                     # Save process
                     save_tree = ET.ElementTree()
                     save_tree._setroot(original_root)
                     try:
-                        save_tree.write(save_file, encoding="UTF-8", xml_declaration=None)
-                        Convert.prepend_filecontent(save_file, "<?xml version=\"1.0\"?>\n")
-                        self.statusbar.showMessage(f'File saved to: {save_file}')
+                        save_tree.write(save_file, encoding='UTF-8',
+                                        xml_declaration=None)
+                        convert.prepend_filecontent(save_file,
+                                                    '<?xml version="1.0"?>\n')
+                        self.statusbar.showMessage(f'File saved: {save_file}')
                     except OSError:
-                        self.msg_show_error(f'Error! Could not write to XML file: \n{save_file}', 'Critical', 'File not saved.')
+                        msg = 'Error! Could not write to XML file:'
+                        msg = f'{msg}\n{save_file}'
+                        self.msg_show_error(msg, 'Critical',
+                                            'File not saved.')
                         self.gb_log_merge.setTitle('Log: ')
                     else:
                         self.update_log_text()
@@ -616,134 +774,161 @@ class MainWin(qtw.QMainWindow):
                             log_text = 'updated tags'
                         # This should not happen.
                         else:
-                            self.msg_show_error(f'Error! Wrong value for duplicate_mode: {duplicate_mode}', 'Critical', 'Wrong value.')
-                            raise ValueError(f'Wrong value for mode: {duplicate_mode}')
+                            msg = 'Error! Wrong value for duplicate_mode:'
+                            msg = f'{msg} {duplicate_mode}'
+                            self.msg_show_error(msg, 'Critical',
+                                                'Wrong value.')
+                            msg = f'Wrong value for mode: {duplicate_mode}'
+                            raise ValueError(msg)
 
                         len_original = str(len(original_root))
                         len_diff = str(len(self.diff_paths))
-                        self.gb_log_merge.setTitle(f'Log: {len_diff} {log_text} ({len_original} total games)')
+                        msg = f'Log: {len_diff} {log_text}'
+                        msg = f'{msg} ({len_original} total games)'
+                        self.gb_log_merge.setTitle(msg)
 
-    # Saves the current log information from text view to a file.
     def b_savelog_merge_clicked(self):
-        save_file = self.dialog_choose_file('Save current log as new or append to existing file.', '*.*', mode='Save', dir=self.last_save_file)
+        """ Save the log information from text view to file. """
+        msg = 'Save current log as new or append to existing file.'
+        save_file = self.dialog_choose_file(msg, '*.*', mode='Save',
+                                            dir=self.last_save_file)
         if len(save_file) > 0:
             self.last_save_file = save_file
             if self.rb_xml_merge.isChecked():
                 save_tree = ET.ElementTree()
                 save_tree._setroot(self.diff_root)
                 try:
-                    save_tree.write(save_file, encoding="UTF-8", xml_declaration=None)
-                    Convert.prepend_filecontent(save_file, "<?xml version=\"1.0\"?>\n")
+                    save_tree.write(save_file, encoding='UTF-8',
+                                    xml_declaration=None)
+                    convert.prepend_filecontent(save_file,
+                                                '<?xml version="1.0"?>\n')
                     self.statusbar.showMessage(f'File saved to: {save_file}')
                 except OSError:
-                    self.msg_show_error(f'Error! Could not write to XML file: \n{save_file}', 'Critical', 'File not saved.')
+                    msg = 'Error! Could not write to XML file:'
+                    msg = f'{msg}\n{save_file}'
+                    self.msg_show_error(msg, 'Critical', 'File not saved.')
                     self.gb_log_merge.setTitle('Log: ')
             else:
                 try:
-                    with open(save_file, 'w') as f:
-                        f.write(self.pte_log_merge.toPlainText())
-                        self.statusbar.showMessage(f'File saved to: {save_file}')
+                    with open(save_file, 'w') as s_file:
+                        s_file.write(self.pte_log_merge.toPlainText())
+                        self.statusbar.showMessage(f'File saved: {save_file}')
                 except PermissionError:
-                    self.msg_show_error(f'Error! No permission to save file:\n{save_file}', 'Critical', 'File not saved.')
+                    msg = f'Error! No permission to save file:\n{save_file}'
+                    self.msg_show_error(msg, 'Critical', 'File not saved.')
                 except OSError:
-                    self.msg_show_error(f'Error! Could not write to log file:\n{save_file}', 'Critical', 'File not saved.')
+                    msg = f'Error! Could not write to log file:\n{save_file}'
+                    self.msg_show_error(msg, 'Critical', 'File not saved.')
 
     # Helper functions
 
-    # Read all non empty user text fields and create a Python dictionary out of it.
     def create_dict_from_gui(self):
-        d = {}
-        if not self.le_name.text() == '':
-            d['name'] = escape( self.le_name.text().strip() )
-        if not self.le_path.text() == '':
-            d['path'] = escape( self.le_path.text().strip() )
-        if not self.le_image.text() == '':
-            d['image'] = escape( self.le_image.text().strip() )
-        if not self.le_marquee.text() == '':
-            d['marquee'] = escape( self.le_marquee.text().strip() )
-        if not self.le_video.text() == '':
-            d['video'] = escape( self.le_video.text().strip() )
-        if not self.pte_desc.toPlainText() == '':
-            d['desc'] = escape( self.pte_desc.toPlainText().strip() )
-        if not self.le_developer.text() == '':
-            d['developer'] = escape( self.le_developer.text().strip() )
-        if not self.le_publisher.text() == '':
-            d['publisher'] = escape( self.le_publisher.text().strip() )
-        if not self.le_releasedate.text() == '':
-            d['releasedate'] = escape( self.le_releasedate.text().strip() )
-        if not self.le_genre.text() == '':
-            d['genre'] = escape( self.le_genre.text().strip() )
-        if not self.le_players.text() == '':
-            d['players'] = escape( self.le_players.text().strip() )
-        if not self.le_rating.text() == '':
-            d['rating'] = escape( self.le_rating.text().strip() )
-        if not self.le_sortname.text() == '':
-            d['sortname'] = escape( self.le_sortname.text().strip() )
-        if not self.le_thumbnail.text() == '':
-            d['thumbnail'] = escape( self.le_thumbnail.text().strip() )
-        if self.cb_favorite.isChecked():
-            d['favorite'] = 'true'
-        if self.cb_hidden.isChecked():
-            d['hidden'] = 'true'
-        if self.cb_kidgame.isChecked():
-            d['kidgame'] = 'true'
-        return d
+        """ Read 'Add Game' view form and create a dict out of it.
 
-    # Returns a list with all active tags in settings for merge update.
-    # As a shortcut, the return value can be None too, which should be treated as 'all'.
-    #
+        Returns
+        -------
+        dict
+            Keys are the tag names and their values are the tag text.
+            Contains only those, which have a user text in the GUI.
+        """
+        dict_ = {}
+        if not self.le_name.text() == '':
+            dict_['name'] = escape(self.le_name.text().strip())
+        if not self.le_path.text() == '':
+            dict_['path'] = escape(self.le_path.text().strip())
+        if not self.le_image.text() == '':
+            dict_['image'] = escape(self.le_image.text().strip())
+        if not self.le_marquee.text() == '':
+            dict_['marquee'] = escape(self.le_marquee.text().strip())
+        if not self.le_video.text() == '':
+            dict_['video'] = escape(self.le_video.text().strip())
+        if not self.pte_desc.toPlainText() == '':
+            dict_['desc'] = escape(self.pte_desc.toPlainText().strip())
+        if not self.le_developer.text() == '':
+            dict_['developer'] = escape(self.le_developer.text().strip())
+        if not self.le_publisher.text() == '':
+            dict_['publisher'] = escape(self.le_publisher.text().strip())
+        if not self.le_releasedate.text() == '':
+            dict_['releasedate'] = escape(self.le_releasedate.text().strip())
+        if not self.le_genre.text() == '':
+            dict_['genre'] = escape(self.le_genre.text().strip())
+        if not self.le_players.text() == '':
+            dict_['players'] = escape(self.le_players.text().strip())
+        if not self.le_rating.text() == '':
+            dict_['rating'] = escape(self.le_rating.text().strip())
+        if not self.le_sortname.text() == '':
+            dict_['sortname'] = escape(self.le_sortname.text().strip())
+        if not self.le_thumbnail.text() == '':
+            dict_['thumbnail'] = escape(self.le_thumbnail.text().strip())
+        if self.cb_favorite.isChecked():
+            dict_['favorite'] = 'true'
+        if self.cb_hidden.isChecked():
+            dict_['hidden'] = 'true'
+        if self.cb_kidgame.isChecked():
+            dict_['kidgame'] = 'true'
+        return dict_
+
     def create_list_from_gui_updateonly(self):
-        l = []
+        """ List of all active tags in settings for merge update.
+
+        Returns
+        -------
+        list or None
+            Contains all tag names, which are currently active in the
+            GUI at settings view for merge update.  None should be
+            treated as 'all', which is a shortcut.
+        """
+        list_ = []
         if self.rb_useall_settings_merge.isChecked():
-            l = None
+            list_ = None
         else:
             if self.cb_name_settings_merge.isChecked():
-                l.append('name')
+                list_.append('name')
             if self.cb_path_settings_merge.isChecked():
-                l.append('path')
+                list_.append('path')
             if self.cb_image_settings_merge.isChecked():
-                l.append('image')
+                list_.append('image')
             if self.cb_marquee_settings_merge.isChecked():
-                l.append('marquee')
+                list_.append('marquee')
             if self.cb_video_settings_merge.isChecked():
-                l.append('video')
+                list_.append('video')
             if self.cb_desc_settings_merge.isChecked():
-                l.append('desc')
+                list_.append('desc')
             if self.cb_developer_settings_merge.isChecked():
-                l.append('developer')
+                list_.append('developer')
             if self.cb_publisher_settings_merge.isChecked():
-                l.append('publisher')
+                list_.append('publisher')
             if self.cb_releasedate_settings_merge.isChecked():
-                l.append('releasedate')
+                list_.append('releasedate')
             if self.cb_genre_settings_merge.isChecked():
-                l.append('genre')
+                list_.append('genre')
             if self.cb_players_settings_merge.isChecked():
-                l.append('players')
+                list_.append('players')
             if self.cb_rating_settings_merge.isChecked():
-                l.append('rating')
+                list_.append('rating')
             if self.cb_lastplayed_settings_merge.isChecked():
-                l.append('lastplayed')
+                list_.append('lastplayed')
             if self.cb_playcount_settings_merge.isChecked():
-                l.append('playcount')
+                list_.append('playcount')
             if self.cb_sortname_settings_merge.isChecked():
-                l.append('sortname')
+                list_.append('sortname')
             if self.cb_thumbnail_settings_merge.isChecked():
-                l.append('thumbnail')
+                list_.append('thumbnail')
             if self.cb_favorite_settings_merge.isChecked():
-                l.append('favorite')
+                list_.append('favorite')
             if self.cb_hidden_settings_merge.isChecked():
-                l.append('hidden')
+                list_.append('hidden')
             if self.cb_kidgame_settings_merge.isChecked():
-                l.append('kidgame')
-            # If all tags are selected, then default to None. None should be treated
-            # as all. Very important to changes the number when adding new tags to
-            # Settings Merge Update.
-            if len(l) == 19:
-                l = None
-        return l
+                list_.append('kidgame')
+            # If all tags are selected, then default to None. None should be
+            # treated as all. Very important to changes the number when adding
+            # new tags to Settings Merge Update.
+            if len(list_) == 19:
+                list_ = None
+        return list_
 
-    # Delete all data in the input fields of the GUI.
     def clear_all_input_fields(self):
+        """ Delete all data in the input fields of the GUI. """
         self.le_name.clear()
         self.le_path.clear()
         self.le_image.clear()
@@ -762,14 +947,15 @@ class MainWin(qtw.QMainWindow):
         self.cb_hidden.setChecked(False)
         self.cb_kidgame.setChecked(False)
 
-    # Update the current log view in ui with the current selected display mode.
     def update_log_text(self):
+        """ Update the log view with current selected display mode. """
         if self.rb_name_merge.isChecked():
             list = ''
             if len(self.diff_names) > 0:
                 list = '\n'.join(self.diff_names)
-            # Strangely if the last item is an empty string, it would be cut off while converting with .join(). So
-            # just add the last new line in this case.
+            # Strangely if the last item is an empty string, it would be cut
+            # off while converting with .join().  So just add the last new
+            # line in this case.
             if len(self.diff_names) > 0 and self.diff_names[-1] == '':
                 list = list + '\n'
             self.pte_log_merge.setPlainText(list)
@@ -789,30 +975,71 @@ class MainWin(qtw.QMainWindow):
             self.b_savelog_merge.setEnabled(False)
             self.b_savelog_merge.setStyleSheet('')
 
-    # Open or run the file with default associated application on the system.
     def run_with_default_app(self, file):
+        """ Run the file with default associated app on the system.
+
+        Parameters
+        ----------
+        file : str
+            The file to run.
+        """
         try:
             if os.path.exists(file):
                 if sys.platform.startswith('linux'):
                     subprocess.call(["xdg-open", file])
                 else:
-                    os.startfile(file)
+                    os.startfile(file)  # pylint: disable=E1101
             else:
-                self.msg_show_error(f'Readme file not found:\n{file}', 'Warning')
-        except:
-            self.msg_show_error(f'Could not run the file with default application:\n{file}', 'Warning')
+                msg = f'File not found:\n{file}'
+                self.msg_show_error(msg, 'Warning')
+        except Exception:
+            msg = f'Could not run the file with default application:\n{file}'
+            self.msg_show_error(msg, 'Warning')
 
-    # This is just in case the user drag and drops the file, so the file:// format is supported.
     def normalize_filepath(self, file):
+        """ Makes paths usable in a standardized form.
+
+        This function exist just for the use case of drag and drop
+        files to the GUI.  They sometimes are in the format of
+        file:// and have %20 instead of space.  These do not work as
+        expected with other functions, so they need to be converted.
+
+        Parameters
+        ----------
+        file : str
+            Regular file path in string form expected from a drag and
+            drop action in example.
+
+        Returns
+        -------
+        str
+            Cleaned up version of the file path.
+        """
         file = file.replace('file://', '')
         file = file.replace('%20', ' ')
         file = file.lstrip()
         file = file.rstrip()
         return file
 
-    # Dialog and Message Box related helper functions
-    # Just a shorthand to show an error message box and print to terminal.
+    # Dialog and message box related helper functions
+
     def msg_show_error(self, message, type=None, short=None):
+        """ Displays a standardized error message box.
+
+        Not only shows it a message box to the user, it also prints to
+        stdout and changes the statusbar.
+
+        Parameters
+        ----------
+        message : str
+            The main message to show in the message box.
+        type : None or {'Warning', 'Critical', 'Information'}
+            Specifies the type of message box.  Defaults to None, which
+            does not display specific icons.
+        short : None or str
+            Short version of the message for display in statusbar.
+            If not specified, then the message is used as default.
+        """
         if short is None:
             short = message
         msgBox = qtw.QMessageBox()
@@ -823,7 +1050,7 @@ class MainWin(qtw.QMainWindow):
         elif type == 'Information':
             msgBox.setIcon(qtw.QMessageBox.Information)
         else:
-            raise ValueError('Wrong argument value for type in msg_show_error().')
+            raise ValueError('Invalid value for "type" in msg_show_error().')
         msgBox.setWindowTitle(APP.NAME)
         msgBox.setText(message)
         msgBox.setStandardButtons(qtw.QMessageBox.Ok)
@@ -831,15 +1058,37 @@ class MainWin(qtw.QMainWindow):
         print(message)
         msgBox.exec()
 
-    # A standard message asking to continue with process.
-    # Title defaults to APP.NAME and type specifies icon and which button is default.
-    # If user clicks Yes-button, then function returns True, otherwise False.
     def msg_continue(self, message, title=None, type='Question'):
+        """ Standard message box asking to continue with process.
+
+        A standard message asking to continue with process.  Depending
+        on the options, an additional 'No' button and an icon are
+        added.  Title defaults to APP.NAME.  If the user clicks the
+        'Ok' (or 'Yes') button, then the function returns True,
+        otherwiese False.
+
+        Parameters
+        ----------
+        message : str
+            The main message to show in the message box.
+        title : None or str
+            The title of the message box.  Defaults to None, which
+            is treated as APP.NAME.
+        type : None or {'Warning', 'Critical', 'Information'}
+            Specifies the type of message box.  Defaults to None, which
+            does not display specific icons.  Depending on the type,
+            additional 'No' button can be added and a proper icon.
+
+        Returns
+        -------
+        bool
+            True if the user clicked 'ok' button, False otherwise.
+        """
         msgBox = qtw.QMessageBox()
         # Ask to proceed. Default is ok.
         if type == 'Question':
             msgBox.setIcon(qtw.QMessageBox.Question)
-            msgBox.setStandardButtons(qtw.QMessageBox.No|qtw.QMessageBox.Ok)
+            msgBox.setStandardButtons(qtw.QMessageBox.No | qtw.QMessageBox.Ok)
             msgBox.setDefaultButton(qtw.QMessageBox.Ok)
             msgBox.setEscapeButton(qtw.QMessageBox.No)
         # No question, just show an information.
@@ -851,7 +1100,7 @@ class MainWin(qtw.QMainWindow):
         # Important. Ask to proceed. Default is no.
         elif type == 'Warning':
             msgBox.setIcon(qtw.QMessageBox.Warning)
-            msgBox.setStandardButtons(qtw.QMessageBox.No|qtw.QMessageBox.Ok)
+            msgBox.setStandardButtons(qtw.QMessageBox.No | qtw.QMessageBox.Ok)
             msgBox.setDefaultButton(qtw.QMessageBox.No)
             msgBox.setEscapeButton(qtw.QMessageBox.No)
         # Like Information, but do not show any icon.
@@ -860,19 +1109,42 @@ class MainWin(qtw.QMainWindow):
             msgBox.setDefaultButton(qtw.QMessageBox.Ok)
             msgBox.setEscapeButton(qtw.QMessageBox.Ok)
         else:
-            raise ValueError('Wrong argument value for type in msg_continue().')
+            raise ValueError('Wrong value for "type" in msg_continue().')
 
         if title is None:
             title == APP.NAME
         msgBox.setWindowTitle(title)
         msgBox.setText(message)
-
         return True if msgBox.exec() == qtw.QMessageBox.Ok else False
 
-    # Show a standardized dialog for loading or saving files. Returns full path of file or an empty string if cancelled.
-    # In case of mode='Load', the file will be checked if its exists. In case of mode='Save', button is named 'save'
-    # accordingly.
     def dialog_choose_file(self, title, filter=None, mode=None, dir=None):
+        """ Show a standardized dialog for selecting files.
+
+        Creates a dialog for choosing a file.  Will return the full
+        path of selected file or an empty string if operation was
+        cancelled.
+
+        Parameters
+        ----------
+        title : str
+            Title of the window as a short description.
+        filter : str
+            Show only selected file types, in example '*.xml'.
+        mode : None or {'Load', 'Save'}
+            Sets the operational mode to save or load accept dialog.
+            Only 'Load' and 'Save' are recognized.  Anything else
+            defaults to load type, but only if 'Load' is set
+            specifically, a file exist test will be done additionally.
+        dir : None or str
+            Initial directory for opening the file.  None defaults to
+            current working directory or used last folder.
+
+        Returns
+        -------
+        str
+            Full file path of selected file.  If user aborts selection,
+            then an empty string is returned.
+        """
         dialog = qtw.QFileDialog()
         dialog.setWindowTitle(title)
         if filter is not None:
@@ -887,21 +1159,24 @@ class MainWin(qtw.QMainWindow):
         self.last_default_dir = dir
         dialog.setDirectory(dir)
         dialog.setFileMode(qtw.QFileDialog.AnyFile)
-        if mode == 1 or mode == 'Save':
+        if mode == 'Save':
             dialog.setAcceptMode(qtw.QFileDialog.AcceptSave)
-        dialog.setOptions(qtw.QFileDialog.DontUseNativeDialog | qtw.QFileDialog.DontConfirmOverwrite)
+        dialog.setOptions((qtw.QFileDialog.DontUseNativeDialog
+                          | qtw.QFileDialog.DontConfirmOverwrite))
         if dialog.exec_() == qtw.QDialog.Accepted:
             # Get the file string and add default extension if not present.
             file = str(dialog.selectedFiles()[0])
         else:
             file = ''
-        if mode == 0 or mode == 'Load':
+        if mode == 'Load':
             if not os.path.exists(file):
                 file = ''
         return file
 
-class About(qtw.QDialog):
 
+class About(qtw.QDialog):
+    """ Creates the About dialog of the application.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -913,7 +1188,8 @@ class About(qtw.QDialog):
         self.l_appcreator = self.findChild(qtw.QLabel, 'l_appcreator')
         self.l_appversion = self.findChild(qtw.QLabel, 'l_appversion')
         self.l_appdesc = self.findChild(qtw.QLabel, 'l_appdesc')
-        self.pte_appversion = self.findChild(qtw.QPlainTextEdit, 'pte_applicense')
+        self.pte_appversion = self.findChild(
+            qtw.QPlainTextEdit, 'pte_applicense')
 
         self.l_appname.setText(APP.NAME)
         self.l_appcreator.setText(APP.CREATOR)
@@ -923,7 +1199,7 @@ class About(qtw.QDialog):
 
 
 if __name__ == '__main__':
-    APP = App.App(__file__)
+    APP = app.App(__file__)
     win = qtw.QApplication(sys.argv)
     mainwin = MainWin()
     about = About()
