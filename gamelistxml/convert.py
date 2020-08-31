@@ -17,15 +17,15 @@
           'name': 'Game Title',
           'rating': '0.65'
         }
-        xml = Convert.dict_to_element(mydict, 'game', APP.SOURCE)
-        xml = Convert.element_to_tree(xml)
-        xml = Convert.tree_to_string(xml)
+        xml = convert.dict_to_element(mydict, 'game', APP.SOURCE)
+        xml = convert.element_to_tree(xml)
+        xml = convert.tree_to_string(xml)
 
         # How to write example.
         file = 'myfile.xml'
         xml_root.append(xml_element)
         xml_tree = ET.ElementTree()
-        Convert.indent(xml_root)
+        convert.indent(xml_root)
         xml_tree._setroot(xml_root)
         try:
             xml_tree.write(file, encoding='UTF-8', xml_declaration=None)
