@@ -360,16 +360,16 @@ class MainWin(qtw.QMainWindow):
         msg = 'Choose a gamelist.xml file to read an entry'
         file = self.dialog_choose_file(msg, '*.xml', mode='Load',
                                        dir=self.last_import_file)
-        if len(file) > 0:
+        if file:
             self.last_import_file = file
-            self.fill_guiedits_by_xml(file)
+            self.fill_form_by_xml(file)
 
     def tb_original_merge_clicked(self):
         """ Select a file with original content to merge. """
         msg = 'Choose old base gamelist.xml file to compare to.'
         file = self.dialog_choose_file(msg, '*.xml', mode='Load',
                                        dir=self.last_import_file)
-        if len(file) > 0:
+        if file:
             self.last_import_file = file
             self.le_original_merge.setText(file)
 
@@ -378,7 +378,7 @@ class MainWin(qtw.QMainWindow):
         msg = 'Choose new gamelist.xml with additional data to append.'
         file = self.dialog_choose_file(msg, '*.xml', mode='Load',
                                        dir=self.last_import_file)
-        if len(file) > 0:
+        if file:
             self.last_import_file = file
             self.le_new_merge.setText(file)
 
@@ -426,90 +426,52 @@ class MainWin(qtw.QMainWindow):
         self.cb_hidden_settings_merge.setChecked(True)
         self.cb_kidgame_settings_merge.setChecked(True)
 
-    def fill_guiedits_by_xml(self, xml_file):
+    def fill_form_by_xml(self, xml_file):
         """ Fill out form by selected XML file.
 
         Opens a XML file with a gameList structure and searches for a
-        game to read.  The User entries in 'Add Game' view from the
-        GUI are used as filters.  A game matching one of the filters
-        is considered to be a match and will be read entirely to fill
-        out its data to the GUI.
+        game to read.  The User entries in 'Add Game' view from the GUI
+        are used as filters.  A game matching one of the filters is
+        considered to be a match and will be read entirely to fill out
+        its data to the GUI.
 
         Parameters
         ----------
         xml_file : str
             Path to a XML file in gamelist.xml format.
         """
-        active_filters = self.create_dict_from_gui()
-        # remove bool filters, as they do not work currently
-        try:
-            active_filters.pop('favorite')
-        except KeyError:
-            pass
-        try:
-            active_filters.pop('hidden')
-        except KeyError:
-            pass
-        try:
-            active_filters.pop('kidgame')
-        except KeyError:
-            pass
-
         try:
             xml_root = ET.parse(xml_file).getroot()
         except ET.ParseError as error:
             xml_root = None
-            msg = 'Error! Could not parse gamelist XML file '
-            msg = f'{msg} {str(error.position)}:\n{xml_file}'
+            msg = ('Error! Could not parse gamelist XML file '
+                   f'{str(error.position)}:\n{xml_file}')
             self.msg_show_error(msg, 'Critical', 'Could not read file.')
 
-        xml_gameFound = None
-        if xml_root is not None:
-            # Check if user made any input in the edit fields.
-            if active_filters:
-                # Each item is a full game Element with all its subelements.
-                for game_element in xml_root.findall('game'):
-                    # Each filter is the name of the edit field, which has a
-                    # content on the gui, in example "path" or "name". Only
-                    # one of the active filters need to match to get first
-                    # found game.
-                    for filter_name in active_filters:
-                        # Check if game Element from XML file have a
-                        # subelement with same of the filter, like "path" or
-                        # "name".
-                        if game_element.findtext(filter_name) is not None:
-                            # Check if current active filters content, in
-                            # example "0.65" or "Mario" matches the content
-                            # from corresponding tag content in XML file.
-                            name_ = game_element.findtext(filter_name)
-                            if active_filters[filter_name] in unescape(name_):
-                                # Single filter match is enough. Consider game
-                                # found and break out through all loops.
-                                xml_gameFound = game_element
-                                msg = 'Game data loaded by matching filter:'
-                                msg = f'{msg} {filter_name}'
-                                self.statusbar.showMessage(msg)
-                                break
-                        # End of "for filter_name"
-                        if xml_gameFound:
-                            break
-                    # Emd of "for game_element"
-                    if xml_gameFound:
-                        break
-            # End of "if len(active_filters)". No filter set in gui. Get first
-            # found entry from xml.
-            else:
-                xml_gameFound = xml_root.find('game')
-                msg = 'First game data loaded. No filter active.'
-                self.statusbar.showMessage(msg)
-
+        xml_game = None
+        if xml_root:
+            # Search XML content and get game content.  Use all tag names and
+            # text from user input form as filters.
+            filters = self.create_dict_from_gui()
+            if not filters:
+                filters = None
+            xml_game, match = convert.get_game_byfilters(xml_root, filters)
             # Finally if game is found, get data and write to GUI edit fields.
-            if xml_gameFound is not None:
+            if xml_game:
+                # match will be a dict if any user filter was active.  It will
+                # contain the data which caused the match.  None if no filter
+                # was active.
+                # keys in match: 'name' and 'text'
+                if match:
+                    msg = ('Game data loaded by matching filter: '
+                           f'{match["name"]}')
+                else:
+                    msg = 'First game data loaded. No filter active.'
+
+                # Go through each tag in game element and write its content to
+                # corresponding edit field in GUI.
                 self.clear_all_input_fields()
-                # Go through each tag in the game element and write its text
-                # to the corresponding user edit fields,
-                # in example content of "name".
-                for tag in xml_gameFound.iter():
+                for tag in xml_game.iter():
                     try:
                         if tag.tag == "name":
                             self.le_name.setText(unescape(tag.text))
@@ -551,7 +513,8 @@ class MainWin(qtw.QMainWindow):
                     except TypeError:
                         pass
             else:
-                self.statusbar.showMessage('No game. Filters do not match.')
+                msg = 'No game. Filters do not match.'
+        self.statusbar.showMessage(msg)
 
     def get_xmlpreview(self, max_len=80):
         """ Creates a XML representation of current GUI form.
@@ -597,7 +560,7 @@ class MainWin(qtw.QMainWindow):
             msg = 'Save game data. Overwrite existing or create new file.'
             file = self.dialog_choose_file(msg, '*.xml', mode='Save',
                                            dir=self.last_save_file)
-            if len(file) > 0:
+            if file:
                 # Add extension in case its missing and file does not exist.
                 if (os.path.splitext(file)[1]
                         == '' and not os.path.exists(file)):
@@ -621,8 +584,8 @@ class MainWin(qtw.QMainWindow):
                         file_xml_root = ET.parse(file).getroot()
                     except ET.ParseError as error:
 
-                        msg = 'Error! Could not parse gamelist XML file'
-                        msg = f'{msg} {str(error.position)}:\n{file}'
+                        msg = ('Error! Could not parse gamelist XML file '
+                               f'{str(error.position)}:\n{file}')
                         self.msg_show_error(msg, 'Critical',
                                             'Could not read file.')
                         file_xml_root = None
@@ -632,11 +595,11 @@ class MainWin(qtw.QMainWindow):
 
                         # Search for basename of path in. If a duplicate was
                         # detected, return game entry, otherwise None.
-                        xml_gameFound = convert.get_game_bypath(
+                        xml_game = convert.get_game_bypath(
                             file_xml_root, current_path)
 
                         # Ask the user what to do if a game was found.
-                        if xml_gameFound is not None:
+                        if xml_game is not None:
                             # Game entry found in xml file. Ask to what to do.
                             msg = ('Game entry collison! Game with same '
                                    'basename in path already exists in '
@@ -648,10 +611,10 @@ class MainWin(qtw.QMainWindow):
                             removeGame = self.msg_continue(
                                 msg, f'{APP.NAME} Overwrite XML', 'Question')
                             if removeGame:
-                                file_xml_root.remove(xml_gameFound)
+                                file_xml_root.remove(xml_game)
                         # Append new game entry and write to file.  Any
                         # existing entry should be removed prior to this.
-                        if xml_gameFound is None or removeGame:
+                        if xml_game is None or removeGame:
                             file_xml_root.append(xml_element)
                             xml_tree = ET.ElementTree()
                             convert.indent(file_xml_root)
@@ -664,8 +627,7 @@ class MainWin(qtw.QMainWindow):
                                 self.statusbar.showMessage(
                                     f'File saved to: {file}')
                             except OSError:
-                                msg = 'Error! Could not write to file:'
-                                msg = f'{msg}\n{file}'
+                                msg = f'Error! Could not write file:\n{file}'
                                 self.msg_show_error(
                                     msg, 'Critical', 'File not saved.')
                 # Write file from scratch with single game content.
@@ -680,8 +642,7 @@ class MainWin(qtw.QMainWindow):
                                                     '<?xml version="1.0"?>\n')
                         self.statusbar.showMessage(f'File saved to: {file}')
                     except OSError:
-                        msg = 'Error! Could not write to new file:'
-                        msg = f'{msg}\n{file}'
+                        msg = f'Error! Could not write to new file:\n{file}'
                         self.msg_show_error(msg, 'Warning', 'File not saved.')
 
     def b_save_merge_clicked(self):
@@ -696,16 +657,14 @@ class MainWin(qtw.QMainWindow):
         original_file = self.le_original_merge.text()
         new_file = self.le_new_merge.text()
         if not os.path.exists(original_file):
-            msg = 'File from input field do not exist. Original:'
-            msg = f'{msg}\n{original_file}'
+            msg = ('File from input field do not exist. Original:'
+                   f'\n{original_file}')
             self.msg_show_error(msg, 'Critical', 'File does not exist.')
         elif not os.path.exists(new_file):
-            msg = 'File from input field do not exist. New:'
-            msg = f'{msg}\n{new_file}'
+            msg = f'File from input field do not exist. New:\n{new_file}'
             self.msg_show_error(msg, 'Critical', 'File does not exist.')
         elif os.path.samefile(original_file, new_file):
-            msg = 'Both paths from input point to same file:'
-            msg = f'{msg}\n{new_file}'
+            msg = f'Both paths from input point to same file:\n{new_file}'
             self.msg_show_error(msg, 'Critical', 'Identical files.')
         else:
             try:
@@ -714,14 +673,14 @@ class MainWin(qtw.QMainWindow):
                 e_file = new_file
                 new_root = ET.parse(new_file).getroot()
             except ET.ParseError as error:
-                msg = 'Error! Could not parse gamelist XML file'
-                msg = f'{msg} {str(error.position)}:\n{e_file}'
+                msg = ('Error! Could not parse gamelist XML file '
+                       f'{str(error.position)}:\n{e_file}')
                 self.msg_show_error(msg, 'Critical', 'Could not read file.')
             else:
                 msg = 'Merge and save. Overwrite or create new file.'
                 save_file = self.dialog_choose_file(
                     msg, '*.xml', mode='Save', dir=self.last_save_file)
-                if len(save_file) > 0:
+                if save_file:
                     # Add extension in case it is missing and the file does
                     # not exist.
                     if (os.path.splitext(save_file)[1]
@@ -756,8 +715,7 @@ class MainWin(qtw.QMainWindow):
                                                     '<?xml version="1.0"?>\n')
                         self.statusbar.showMessage(f'File saved: {save_file}')
                     except OSError:
-                        msg = 'Error! Could not write to XML file:'
-                        msg = f'{msg}\n{save_file}'
+                        msg = f'Error! Could not write XML file:\n{save_file}'
                         self.msg_show_error(msg, 'Critical',
                                             'File not saved.')
                         self.gb_log_merge.setTitle('Log: ')
@@ -774,8 +732,8 @@ class MainWin(qtw.QMainWindow):
                             log_text = 'updated tags'
                         # This should not happen.
                         else:
-                            msg = 'Error! Wrong value for duplicate_mode:'
-                            msg = f'{msg} {duplicate_mode}'
+                            msg = ('Error! Wrong value for duplicate_mode: '
+                                   f'{duplicate_mode}')
                             self.msg_show_error(msg, 'Critical',
                                                 'Wrong value.')
                             msg = f'Wrong value for mode: {duplicate_mode}'
@@ -783,8 +741,8 @@ class MainWin(qtw.QMainWindow):
 
                         len_original = str(len(original_root))
                         len_diff = str(len(self.diff_paths))
-                        msg = f'Log: {len_diff} {log_text}'
-                        msg = f'{msg} ({len_original} total games)'
+                        msg = (f'Log: {len_diff} {log_text} '
+                               f'({len_original} total games)')
                         self.gb_log_merge.setTitle(msg)
 
     def b_savelog_merge_clicked(self):
@@ -792,7 +750,7 @@ class MainWin(qtw.QMainWindow):
         msg = 'Save current log as new or append to existing file.'
         save_file = self.dialog_choose_file(msg, '*.*', mode='Save',
                                             dir=self.last_save_file)
-        if len(save_file) > 0:
+        if save_file:
             self.last_save_file = save_file
             if self.rb_xml_merge.isChecked():
                 save_tree = ET.ElementTree()
@@ -804,8 +762,7 @@ class MainWin(qtw.QMainWindow):
                                                 '<?xml version="1.0"?>\n')
                     self.statusbar.showMessage(f'File saved to: {save_file}')
                 except OSError:
-                    msg = 'Error! Could not write to XML file:'
-                    msg = f'{msg}\n{save_file}'
+                    msg = f'Error! Could not write to XML file:\n{save_file}'
                     self.msg_show_error(msg, 'Critical', 'File not saved.')
                     self.gb_log_merge.setTitle('Log: ')
             else:

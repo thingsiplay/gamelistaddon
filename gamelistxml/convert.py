@@ -34,6 +34,7 @@
 
 import os
 import xml.etree.ElementTree as ET
+from html import unescape
 
 
 def dict_to_element(dictionary, tagname, source=None):
@@ -81,14 +82,14 @@ def dict_to_element(dictionary, tagname, source=None):
     return element
 
 
-def element_to_tree(element, xmlroot=None):
+def element_to_tree(element, xml_root=None):
     """ Convert single tag element into a full XML tree object.
 
     Parameters
     ----------
     element : ElementTree.Element
         The element with all its tags and content to convert.
-    xmlroot : None or ElementTree.Element, optional
+    xml_root : None or ElementTree.Element, optional
         Optional base XML with one root element.  If not specified, a
         default root gameList-element will be created.
 
@@ -97,12 +98,12 @@ def element_to_tree(element, xmlroot=None):
     ElementTree.ElementTree
         Full XML object with gameList-element and its sub game-element.
     """
-    if xmlroot is None:
-        xmlroot = '<?xml version="1.0"?>\n<gameList>\n</gameList>'
-        xmlroot = ET.fromstring(xmlroot)
-    xmlroot.append(element)
+    if xml_root is None:
+        xml_root = '<?xml version="1.0"?>\n<gameList>\n</gameList>'
+        xml_root = ET.fromstring(xml_root)
+    xml_root.append(element)
     new_xml_tree = ET.ElementTree()
-    new_xml_tree._setroot(xmlroot)
+    new_xml_tree._setroot(xml_root)
     return new_xml_tree
 
 
@@ -120,9 +121,9 @@ def tree_to_string(xml):
         Unicode encoded string representation of the xml.  Output is
         indented and formatted to be read by humans.
     """
-    xmlroot = xml.getroot()
-    indent(xmlroot)
-    return ET.tostring(xmlroot, encoding='unicode')
+    xml_root = xml.getroot()
+    indent(xml_root)
+    return ET.tostring(xml_root, encoding='unicode')
 
 
 def root_to_pathsnames(gamelist):
@@ -310,6 +311,10 @@ def merge_gamelists(base_root, add_root, duplicate='i', source=None,
 def get_game_bypath(root, path):
     """ Search and get game-element from an ElementTree XML root.
 
+    First matching game element will be read.  Comparison is done at
+    basename level of path, which means ignoring its directory part
+    and comparing filenames only.
+
     Parameters
     ----------
     root : ElementTree.Element
@@ -340,6 +345,81 @@ def get_game_bypath(root, path):
             game = element
             break
     return game
+
+
+def get_game_byfilters(root, filters=None):
+    """ Search and get game-element from an ElementTree XML root.
+
+    The first found game element will be read.  If any filters are
+    active, then the first matching game is read.  Only one of the
+    filters need to match, not all of them.
+
+    Parameters
+    ----------
+    root : ElementTree.Element
+        A XML root with multiple game elements is expected.
+    filters : dict or None
+        Multiple pairs of tag names and text, in example
+        {'path': '.file', 'favorite': 'true'}.  Each key represents
+        the tag name and its value is the tag text.  Every pair is
+        searched and compared for each game in root, until one match
+        is found.  A match occurs, if
+            a) a game has a tag name matching dict key, such as 'path'
+            b) and the dict value is found in somewhere in tag text
+        None ignores the filter.  Get first game element in this case.
+
+    Returns
+    -------
+    ElementTree.Element or None
+        game root object with all tags and sub elements if any match is
+        found, None otherwise.
+    dict or None
+        If any game is found via matching filter, then the dict
+        contains two keys: 'name' and 'text'.  Both contain the values
+        from active filters.  None if no match occured or no filter was
+        used at all.
+    """
+    xml_game = None
+    match = None
+    if isinstance(filters, dict):
+        # Filters are active.  Load all game elements from XML content and go
+        # through each single game.
+        # game_element is a ElementTree.Element
+        for game_element in root.findall('game'):
+            # filter_name is a string like 'path'
+            # filter_text is a string like './filename.smc' or 'true'
+            for filter_name, filter_text in filters.items():
+                # Check if current game from XML file have a sub element with
+                # the same name of the current active filter.  Read the text
+                # content of the tag.
+                # xml_text is a string like './file.smc' or 'true'
+                xml_text = game_element.findtext(filter_name)
+                if xml_text is not None:
+                    xml_text = unescape(xml_text)
+                    # There are two types of filter: string and bool.
+                    # bool filter: Compare exact value from filter to lower
+                    # case value from tag in game element.
+                    # string filter: Value from filter must appear anywhere
+                    # in the string from tag in game element.
+                    if ((filter_text in ['true', 'false']
+                       and filter_text == xml_text.lower())
+                       or filter_text in xml_text):
+                        # Congratulation! A match is found.  Single filter
+                        # match is enough.  Read the entire game content and
+                        # stop the search.
+                        xml_game = game_element
+                        match = {'name': filter_name, 'text': filter_text}
+                        break
+                # End of "for filter_name"
+                if xml_game:
+                    break
+            # Emd of "for game_element"
+            if xml_game:
+                break
+    # Without filter, just get first entry.
+    elif filters is None:
+        xml_game = root.find('game')
+    return xml_game, match
 
 
 # Functions created by others.
