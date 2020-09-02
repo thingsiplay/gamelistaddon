@@ -23,6 +23,7 @@ import os.path
 import sys
 import subprocess
 import xml.etree.ElementTree as ET
+import urllib.parse
 from html import escape, unescape
 
 from PyQt5 import QtWidgets as qtw
@@ -346,12 +347,12 @@ class MainWin(qtw.QMainWindow):
     def b_preview_addgame_clicked(self):
         """ Show preview of the game xml data message box. """
         self.msg_continue(self.get_xmlpreview(),
-                          f'{APP.NAME} XML Preview', 'Information')
+                          'Information', f'{APP.NAME} XML Preview')
 
     def b_new_addgame_clicked(self):
         """ Ask user if all gui input content should be cleared. """
         msg = 'Do you want start a new game entry from scratch?'
-        if self.msg_continue(msg, f'{APP.NAME} Delete', 'Warning'):
+        if self.msg_continue(msg, 'Warning', f'{APP.NAME} Delete'):
             self.clear_all_input_fields()
 
     def b_import_addgame_clicked(self):
@@ -359,7 +360,7 @@ class MainWin(qtw.QMainWindow):
         Fill all fields by the data from gamelist.xml file. """
         msg = 'Choose a gamelist.xml file to read an entry'
         file = self.dialog_choose_file(msg, '*.xml', mode='Load',
-                                       dir=self.last_import_file)
+                                       wdir=self.last_import_file)
         if file:
             self.last_import_file = file
             self.fill_form_by_xml(file)
@@ -368,7 +369,7 @@ class MainWin(qtw.QMainWindow):
         """ Select a file with original content to merge. """
         msg = 'Choose old base gamelist.xml file to compare to.'
         file = self.dialog_choose_file(msg, '*.xml', mode='Load',
-                                       dir=self.last_import_file)
+                                       wdir=self.last_import_file)
         if file:
             self.last_import_file = file
             self.le_original_merge.setText(file)
@@ -377,7 +378,7 @@ class MainWin(qtw.QMainWindow):
         """ Select a file with original content to append. """
         msg = 'Choose new gamelist.xml with additional data to append.'
         file = self.dialog_choose_file(msg, '*.xml', mode='Load',
-                                       dir=self.last_import_file)
+                                       wdir=self.last_import_file)
         if file:
             self.last_import_file = file
             self.le_new_merge.setText(file)
@@ -559,7 +560,7 @@ class MainWin(qtw.QMainWindow):
         else:
             msg = 'Save game data. Overwrite existing or create new file.'
             file = self.dialog_choose_file(msg, '*.xml', mode='Save',
-                                           dir=self.last_save_file)
+                                           wdir=self.last_save_file)
             if file:
                 # Add extension in case its missing and file does not exist.
                 if (os.path.splitext(file)[1]
@@ -609,7 +610,7 @@ class MainWin(qtw.QMainWindow):
                                    'Do you want replace the entire game '
                                    'entry and overwrite file?')
                             removeGame = self.msg_continue(
-                                msg, f'{APP.NAME} Overwrite XML', 'Question')
+                                msg, 'Question', f'{APP.NAME} Overwrite XML')
                             if removeGame:
                                 file_xml_root.remove(xml_game)
                         # Append new game entry and write to file.  Any
@@ -679,7 +680,7 @@ class MainWin(qtw.QMainWindow):
             else:
                 msg = 'Merge and save. Overwrite or create new file.'
                 save_file = self.dialog_choose_file(
-                    msg, '*.xml', mode='Save', dir=self.last_save_file)
+                    msg, '*.xml', mode='Save', wdir=self.last_save_file)
                 if save_file:
                     # Add extension in case it is missing and the file does
                     # not exist.
@@ -702,8 +703,8 @@ class MainWin(qtw.QMainWindow):
                     self.diff_root = convert.merge_gamelists(
                         original_root, new_root, duplicate_mode, APP.SOURCE,
                         updateonly)
-                    paths_, names_ = convert.root_to_pathsnames(self.diff_root)
-                    self.diff_paths, self.diff_names = paths_, names_
+                    self.diff_paths, self.diff_names = (
+                        convert.root_to_pathsnames(self.diff_root))
 
                     # Save process
                     save_tree = ET.ElementTree()
@@ -716,8 +717,7 @@ class MainWin(qtw.QMainWindow):
                         self.statusbar.showMessage(f'File saved: {save_file}')
                     except OSError:
                         msg = f'Error! Could not write XML file:\n{save_file}'
-                        self.msg_show_error(msg, 'Critical',
-                                            'File not saved.')
+                        self.msg_show_error(msg, 'Critical', 'File not saved.')
                         self.gb_log_merge.setTitle('Log: ')
                     else:
                         self.update_log_text()
@@ -749,7 +749,7 @@ class MainWin(qtw.QMainWindow):
         """ Save the log information from text view to file. """
         msg = 'Save current log as new or append to existing file.'
         save_file = self.dialog_choose_file(msg, '*.*', mode='Save',
-                                            dir=self.last_save_file)
+                                            wdir=self.last_save_file)
         if save_file:
             self.last_save_file = save_file
             if self.rb_xml_merge.isChecked():
@@ -907,23 +907,23 @@ class MainWin(qtw.QMainWindow):
     def update_log_text(self):
         """ Update the log view with current selected display mode. """
         if self.rb_name_merge.isChecked():
-            list = ''
-            if len(self.diff_names) > 0:
-                list = '\n'.join(self.diff_names)
+            names = ''
+            if self.diff_names:
+                names = '\n'.join(self.diff_names)
             # Strangely if the last item is an empty string, it would be cut
             # off while converting with .join().  So just add the last new
             # line in this case.
-            if len(self.diff_names) > 0 and self.diff_names[-1] == '':
-                list = list + '\n'
-            self.pte_log_merge.setPlainText(list)
+            if self.diff_names and self.diff_names[-1] == '':
+                names = names + '\n'
+            self.pte_log_merge.setPlainText(names)
         elif self.rb_path_merge.isChecked():
-            list = '\n'.join(self.diff_paths)
-            if len(self.diff_paths) > 0 and self.diff_paths[-1] == '':
-                list = list + '\n'
-            self.pte_log_merge.setPlainText(list)
+            names = '\n'.join(self.diff_paths)
+            if self.diff_paths and self.diff_paths[-1] == '':
+                names = names + '\n'
+            self.pte_log_merge.setPlainText(names)
         elif self.rb_xml_merge.isChecked():
             if self.diff_root is not None:
-                xml = ET.tostring(self.diff_root, encoding="unicode")
+                xml = ET.tostring(self.diff_root, encoding='unicode')
                 self.pte_log_merge.setPlainText(xml)
         if len(self.pte_log_merge.toPlainText()) > 0:
             self.b_savelog_merge.setEnabled(True)
@@ -954,18 +954,18 @@ class MainWin(qtw.QMainWindow):
             self.msg_show_error(msg, 'Warning')
 
     def normalize_filepath(self, file):
-        """ Makes paths usable in a standardized form.
+        """ Unquotes and normalizes drag and dropped paths.
 
-        This function exist just for the use case of drag and drop
-        files to the GUI.  They sometimes are in the format of
-        file:// and have %20 instead of space.  These do not work as
-        expected with other functions, so they need to be converted.
+        Converts paths with percent encoding and unquotes to actual
+        real character representations, such as '%20' to ' ' (space).
+        Also removes the 'file://' portion.  These happen especially
+        when dealing with local files copied or drag and dropped.
 
         Parameters
         ----------
         file : str
-            Regular file path in string form expected from a drag and
-            drop action in example.
+            Regular file path as a string, expected from a drag and
+            drop action.
 
         Returns
         -------
@@ -973,14 +973,13 @@ class MainWin(qtw.QMainWindow):
             Cleaned up version of the file path.
         """
         file = file.replace('file://', '')
-        file = file.replace('%20', ' ')
-        file = file.lstrip()
-        file = file.rstrip()
+        file = urllib.parse.unquote(file)
+        file = file.strip()
         return file
 
     # Dialog and message box related helper functions
 
-    def msg_show_error(self, message, type=None, short=None):
+    def msg_show_error(self, message, mode=None, short=None):
         """ Displays a standardized error message box.
 
         Not only shows it a message box to the user, it also prints to
@@ -990,7 +989,7 @@ class MainWin(qtw.QMainWindow):
         ----------
         message : str
             The main message to show in the message box.
-        type : None or {'Warning', 'Critical', 'Information'}
+        mode : None or {'Warning', 'Critical', 'Information'}
             Specifies the type of message box.  Defaults to None, which
             does not display specific icons.
         short : None or str
@@ -1000,14 +999,14 @@ class MainWin(qtw.QMainWindow):
         if short is None:
             short = message
         msgBox = qtw.QMessageBox()
-        if type == 'Warning':
+        if mode == 'Warning':
             msgBox.setIcon(qtw.QMessageBox.Warning)
-        elif type == 'Critical':
+        elif mode == 'Critical':
             msgBox.setIcon(qtw.QMessageBox.Critical)
-        elif type == 'Information':
+        elif mode == 'Information':
             msgBox.setIcon(qtw.QMessageBox.Information)
         else:
-            raise ValueError('Invalid value for "type" in msg_show_error().')
+            raise ValueError('Invalid value for "mode" in msg_show_error().')
         msgBox.setWindowTitle(APP.NAME)
         msgBox.setText(message)
         msgBox.setStandardButtons(qtw.QMessageBox.Ok)
@@ -1015,7 +1014,7 @@ class MainWin(qtw.QMainWindow):
         print(message)
         msgBox.exec()
 
-    def msg_continue(self, message, title=None, type='Question'):
+    def msg_continue(self, message, mode='Question', title=None):
         """ Standard message box asking to continue with process.
 
         A standard message asking to continue with process.  Depending
@@ -1031,9 +1030,9 @@ class MainWin(qtw.QMainWindow):
         title : None or str
             The title of the message box.  Defaults to None, which
             is treated as APP.NAME.
-        type : None or {'Warning', 'Critical', 'Information'}
+        mode : None or {'Warning', 'Critical', 'Information'}
             Specifies the type of message box.  Defaults to None, which
-            does not display specific icons.  Depending on the type,
+            does not display specific icons.  Depending on the mode,
             additional 'No' button can be added and a proper icon.
 
         Returns
@@ -1043,38 +1042,38 @@ class MainWin(qtw.QMainWindow):
         """
         msgBox = qtw.QMessageBox()
         # Ask to proceed. Default is ok.
-        if type == 'Question':
+        if mode == 'Question':
             msgBox.setIcon(qtw.QMessageBox.Question)
             msgBox.setStandardButtons(qtw.QMessageBox.No | qtw.QMessageBox.Ok)
             msgBox.setDefaultButton(qtw.QMessageBox.Ok)
             msgBox.setEscapeButton(qtw.QMessageBox.No)
         # No question, just show an information.
-        elif type == 'Information':
+        elif mode == 'Information':
             msgBox.setIcon(qtw.QMessageBox.Information)
             msgBox.setStandardButtons(qtw.QMessageBox.Ok)
             msgBox.setDefaultButton(qtw.QMessageBox.Ok)
             msgBox.setEscapeButton(qtw.QMessageBox.Ok)
         # Important. Ask to proceed. Default is no.
-        elif type == 'Warning':
+        elif mode == 'Warning':
             msgBox.setIcon(qtw.QMessageBox.Warning)
             msgBox.setStandardButtons(qtw.QMessageBox.No | qtw.QMessageBox.Ok)
             msgBox.setDefaultButton(qtw.QMessageBox.No)
             msgBox.setEscapeButton(qtw.QMessageBox.No)
         # Like Information, but do not show any icon.
-        elif type is None:
+        elif mode is None:
             msgBox.setStandardButtons(qtw.QMessageBox.Ok)
             msgBox.setDefaultButton(qtw.QMessageBox.Ok)
             msgBox.setEscapeButton(qtw.QMessageBox.Ok)
         else:
-            raise ValueError('Wrong value for "type" in msg_continue().')
+            raise ValueError('Wrong value for "mode" in msg_continue().')
 
         if title is None:
-            title == APP.NAME
+            title = APP.NAME
         msgBox.setWindowTitle(title)
         msgBox.setText(message)
-        return True if msgBox.exec() == qtw.QMessageBox.Ok else False
+        return bool(msgBox.exec() == qtw.QMessageBox.Ok)
 
-    def dialog_choose_file(self, title, filter=None, mode=None, dir=None):
+    def dialog_choose_file(self, title, filetype=None, mode=None, wdir=None):
         """ Show a standardized dialog for selecting files.
 
         Creates a dialog for choosing a file.  Will return the full
@@ -1085,14 +1084,14 @@ class MainWin(qtw.QMainWindow):
         ----------
         title : str
             Title of the window as a short description.
-        filter : str
+        filetype : str
             Show only selected file types, in example '*.xml'.
         mode : None or {'Load', 'Save'}
             Sets the operational mode to save or load accept dialog.
             Only 'Load' and 'Save' are recognized.  Anything else
             defaults to load type, but only if 'Load' is set
             specifically, a file exist test will be done additionally.
-        dir : None or str
+        wdir : None or str
             Initial directory for opening the file.  None defaults to
             current working directory or used last folder.
 
@@ -1104,17 +1103,17 @@ class MainWin(qtw.QMainWindow):
         """
         dialog = qtw.QFileDialog()
         dialog.setWindowTitle(title)
-        if filter is not None:
-            dialog.setNameFilter(filter)
-        if dir is None:
+        if filetype is not None:
+            dialog.setNameFilter(filetype)
+        if wdir is None:
             if self.last_default_dir is None:
-                dir = os.getcwd()
+                wdir = os.getcwd()
             else:
-                dir = self.last_default_dir
-        if os.path.isfile(dir):
-            dir = os.path.dirname(dir)
-        self.last_default_dir = dir
-        dialog.setDirectory(dir)
+                wdir = self.last_default_dir
+        if os.path.isfile(wdir):
+            wdir = os.path.dirname(wdir)
+        self.last_default_dir = wdir
+        dialog.setDirectory(wdir)
         dialog.setFileMode(qtw.QFileDialog.AnyFile)
         if mode == 'Save':
             dialog.setAcceptMode(qtw.QFileDialog.AcceptSave)

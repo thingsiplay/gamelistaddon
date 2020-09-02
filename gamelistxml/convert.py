@@ -448,7 +448,8 @@ def indent(element, level=0):
     2004 by Fredrik Lundh
     """
     i = '\n' + level * '  '
-    if len(element):
+    # if len(element)
+    if element:
         if not element.text or not element.text.strip():
             element.text = i + '  '
         if not element.tail or not element.tail.strip():
