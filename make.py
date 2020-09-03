@@ -104,9 +104,9 @@ parser.add_argument('--setup', action='store_true',
 parser.add_argument('--ui', action='store_true',
                     help='Convert resources and ui files from qt5 designer.')
 parser.add_argument('--build', action='store_true',
-                    help='Compile and build standalone distribution.')
+                    help='Compile and build standalone app.')
 parser.add_argument('--package', action='store_true',
-                    help='Create various archives.')
+                    help='Create various archives for distribution.')
 parser.add_argument('--clean', action='store_true',
                     help='Remove temporary files.')
 args = parser.parse_args()
@@ -155,7 +155,7 @@ if PACKAGE or BUILD:
 
     # readme
     cmd_ = (f'pandoc "{BUILD_DIRNAME}/README.md" '
-            '-f markdown -t html -o "README.html"')
+            '-f markdown -t html -s -H "README.css" -o "README.html"')
     run(cmd_, True, APP.DIR)
     shutil.copy2('README.html', BUILD_DIRNAME)
 

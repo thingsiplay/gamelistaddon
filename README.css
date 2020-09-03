@@ -1,0 +1,14 @@
+<style>
+h1 {
+  border-bottom: 1px solid DarkGray;
+  text-align: center;
+}
+h2 {
+  border-bottom: 1px solid LightGrey;
+}
+pre {
+  background-color: Ivory;
+  color: DarkBlue;
+  padding: 2em;
+}
+</style>

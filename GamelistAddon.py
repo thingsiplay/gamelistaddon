@@ -972,7 +972,8 @@ class MainWin(qtw.QMainWindow):
         str
             Cleaned up version of the file path.
         """
-        file = file.replace('file://', '')
+        if file.startswith('file://'):
+            file = file[7:]
         file = urllib.parse.unquote(file)
         file = file.strip()
         return file
