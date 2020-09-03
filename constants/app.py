@@ -47,7 +47,7 @@ class App():
     def __init__(self, path_of_calling_app):
         self.NAME = 'Gamelist Addon'
         self.SOURCE = 'gamelistaddon'
-        self.VERSION = '0.3'
+        self.VERSION = '0.4'
         self.CREATOR = 'Tuncay D.'
         self.DESC = ('Add new game entries to gamelist.xml files '
                      'created for EmulationStation.')

@@ -11,7 +11,7 @@ Gamelist Addon is a graphical desktop app for Linux with the capability to add n
 
 ## Introduction
 
-[gamelist.xml](https://retropie.org.uk/docs/EmulationStation/#gamelistxml-edits) files are databases used by [EmulationStation](https://retropie.org.uk/docs/EmulationStation/), in example within RetroPie. They store game related meta information for each system, such as file paths and release dates. Usually those files are created by some sort of [scraper tools](https://retropie.org.uk/docs/Scraper/) and do not require any manual editing. However sometimes there are cases when manually editing is required. Editing such files in a text editor has some traps and is just a pain.
+[gamelist.xml](https://github.com/Aloshi/EmulationStation#gamelistxml) files are databases used by [EmulationStation](https://retropie.org.uk/docs/EmulationStation/), in example within RetroPie. They store game related meta information for each system, such as file paths and release dates. Usually those files are created by some sort of [scraper tools](https://retropie.org.uk/docs/Scraper/) and do not require any manual editing. However sometimes there are cases when manually editing is required. Editing such files in a text editor has some traps and is just a pain.
 
 **Important**: This app will check for existing game entries and make sure the file is written in correct format. It is not a replacement for a rom manager or full fledged gamelist.xml editor. Entries are added as they are and no additional rom, image or video files are copied or checked for existence. It is the users responsibility to manage those things separately.
 
@@ -99,6 +99,11 @@ will only generate the .ui files and the distribution packages for Python only. 
 If you want report a bug or have any questions, head over to the [project's forum thread](https://retropie.org.uk/forum/topic/27466/gamelist-addon-an-assist-tool-to-manually-add-new-game-entries)  in RetroPie or [leave me a message](https://thingsiplay.game.blog/contact/) on my contact page.
 
 ## Changelog
+
+Version 0.4
+
+- lot of refactoring with ton of internal changes and more code documentation
+- added full support for favorite, hidden and kidgame as filters (previously, they were ignored as filters, but  was fully functional otherwise)
 
 Version 0.3:
 
