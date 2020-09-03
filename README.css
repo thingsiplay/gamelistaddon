@@ -5,6 +5,7 @@ h1 {
 }
 h2 {
   border-bottom: 1px solid LightGrey;
+  text-shadow: 2px 2px 1px LightGrey;
 }
 pre {
   background-color: Ivory;

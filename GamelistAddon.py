@@ -385,6 +385,7 @@ class MainWin(qtw.QMainWindow):
 
     def b_selectnone_settings_merge_clicked(self):
         """ Deselect all tags in settings for merge update. """
+        self.rb_usecustom_settings_merge.click()
         self.cb_name_settings_merge.setChecked(False)
         self.cb_path_settings_merge.setChecked(False)
         self.cb_image_settings_merge.setChecked(False)
@@ -407,6 +408,7 @@ class MainWin(qtw.QMainWindow):
 
     def b_selectall_settings_merge_clicked(self):
         """ Select all tags in settings for merge update. """
+        self.rb_usecustom_settings_merge.click()
         self.cb_name_settings_merge.setChecked(True)
         self.cb_path_settings_merge.setChecked(True)
         self.cb_image_settings_merge.setChecked(True)
@@ -449,8 +451,9 @@ class MainWin(qtw.QMainWindow):
                    f'{str(error.position)}:\n{xml_file}')
             self.msg_show_error(msg, 'Critical', 'Could not read file.')
 
-        xml_game = None
         if xml_root:
+            msg = ''
+            xml_game = None
             # Search XML content and get game content.  Use all tag names and
             # text from user input form as filters.
             filters = self.create_dict_from_gui()
@@ -515,7 +518,8 @@ class MainWin(qtw.QMainWindow):
                         pass
             else:
                 msg = 'No game. Filters do not match.'
-        self.statusbar.showMessage(msg)
+            if msg:
+                self.statusbar.showMessage(msg)
 
     def get_xmlpreview(self, max_len=80):
         """ Creates a XML representation of current GUI form.
