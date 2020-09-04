@@ -146,18 +146,8 @@ def root_to_pathsnames(gamelist):
     names = []
     if gamelist is not None:
         for game in gamelist.findall('game'):
-            # Get content of path-tag of the game.
-            element = game.find('path')
-            if element is None or element.text is None:
-                paths.append('')
-            else:
-                paths.append(element.text)
-            # Get content of name-tag of the game.
-            element = game.find('name')
-            if element is None or element.text is None:
-                names.append('')
-            else:
-                names.append(element.text)
+            paths.append(game.findtext('path', ''))
+            paths.append(game.findtext('name', ''))
     return paths, names
 
 
@@ -226,11 +216,7 @@ def merge_gamelists(base_root, add_root, duplicate='i', source=None,
     if duplicate == 'i':
 
         for add_game in add_root.findall('game'):
-            path = add_game.find('path')
-            if path is None or path.text is None:
-                path = ''
-            else:
-                path = path.text
+            path = add_game.findtext('path', '')
             # Add game, if its not found in base.
             if (not path) or (os.path.basename(path) not in base_names):
                 base_root.append(add_game)
@@ -239,11 +225,7 @@ def merge_gamelists(base_root, add_root, duplicate='i', source=None,
     elif duplicate == 'u':
 
         for add_game in add_root.findall('game'):
-            path = add_game.find('path')
-            if path is None or path.text is None:
-                path = ''
-            else:
-                path = path.text
+            path = add_game.findtext('path', '')
             # Check if game is exist in base content.
             if path and os.path.basename(path) in base_names:
                 # Game entry exists.  Now update each individual tag.  Get a
@@ -334,12 +316,7 @@ def get_game_bypath(root, path):
     base_path = os.path.basename(path)
     game = None
     for element in root.getiterator('game'):
-        # Get content of tag game/path.
-        element_path = element.find('path')
-        if element_path is None:
-            element_path = ''
-        else:
-            element_path = element_path.text
+        element_path = element.findtext('path', '')
         # Get full game-element, if filenames from both path match.
         if base_path == os.path.basename(element_path):
             game = element
@@ -378,9 +355,12 @@ def get_game_byfilters(root, filters=None):
         contains two keys: 'name' and 'text'.  Both contain the values
         from active filters.  None if no match occured or no filter was
         used at all.
+
+    Raises
+    ------
+    ValueError
+        Wrong variable type for parameter 'filters'.
     """
-    xml_game = None
-    match = None
     if isinstance(filters, dict):
         # Filters are active.  Load all game elements from XML content and go
         # through each single game.
@@ -407,19 +387,14 @@ def get_game_byfilters(root, filters=None):
                         # Congratulation! A match is found.  Single filter
                         # match is enough.  Read the entire game content and
                         # stop the search.
-                        xml_game = game_element
                         match = {'name': filter_name, 'text': filter_text}
-                        break
-                # End of "for filter_name"
-                if xml_game:
-                    break
-            # Emd of "for game_element"
-            if xml_game:
-                break
+                        return game_element, match
     # Without filter, just get first entry.
     elif filters is None:
-        xml_game = root.find('game')
-    return xml_game, match
+        return root.find('game'), None
+    else:
+        raise ValueError(f'Wrong type for filters: {type(filters)}')
+    return None, None
 
 
 # Functions created by others.

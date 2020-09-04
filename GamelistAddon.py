@@ -32,6 +32,7 @@ from PyQt5 import QtGui as qtg
 
 from gui.MainWindow import Ui_MainWindow
 from gui.About import Ui_dialog_about
+
 from gamelistxml import convert
 from constants import app
 
@@ -280,7 +281,6 @@ class MainWin(qtw.QMainWindow):
         # Show Window
         self.setWindowTitle(f'{APP.NAME} v{APP.VERSION}')
         self.setWindowIcon(qtg.QIcon(':/Icons/img/winkemojis-wink.svg'))
-        self.show()
 
     # Menu handlers
 
@@ -658,6 +658,12 @@ class MainWin(qtw.QMainWindow):
         added to new file, based on the current settings.  After the
         process is done, a log with all added or updated games will be
         displayed in the log area.
+
+        Raises
+        ------
+        ValueError
+            Wrong value for internal variable duplicate_mode.  Happens
+            only if no option was set via radio button.
         """
         original_file = self.le_original_merge.text()
         new_file = self.le_new_merge.text()
@@ -1082,8 +1088,7 @@ class MainWin(qtw.QMainWindow):
         """ Show a standardized dialog for selecting files.
 
         Creates a dialog for choosing a file.  Will return the full
-        path of selected file or an empty string if operation was
-        cancelled.
+        path of selected file or None if operation was cancelled.
 
         Parameters
         ----------
@@ -1093,18 +1098,19 @@ class MainWin(qtw.QMainWindow):
             Show only selected file types, in example '*.xml'.
         mode : None or {'Load', 'Save'}
             Sets the operational mode to save or load accept dialog.
-            Only 'Load' and 'Save' are recognized.  Anything else
-            defaults to load type, but only if 'Load' is set
-            specifically, a file exist test will be done additionally.
+            Only 'Load' and 'Save' are recognized.  When using 'Load'
+            mode, then the file must exist (because filename can be
+            typed freely in dialog).
         wdir : None or str
             Initial directory for opening the file.  None defaults to
             current working directory or used last folder.
 
         Returns
         -------
-        str
+        str or None
             Full file path of selected file.  If user aborts selection,
-            then an empty string is returned.
+            or the file does not exist when using 'Load'-mode, then
+            None is returned.
         """
         dialog = qtw.QFileDialog()
         dialog.setWindowTitle(title)
@@ -1120,18 +1126,17 @@ class MainWin(qtw.QMainWindow):
         self.last_default_dir = wdir
         dialog.setDirectory(wdir)
         dialog.setFileMode(qtw.QFileDialog.AnyFile)
-        if mode == 'Save':
-            dialog.setAcceptMode(qtw.QFileDialog.AcceptSave)
         dialog.setOptions((qtw.QFileDialog.DontUseNativeDialog
                           | qtw.QFileDialog.DontConfirmOverwrite))
+        if mode == 'Save':
+            dialog.setAcceptMode(qtw.QFileDialog.AcceptSave)
+
         if dialog.exec_() == qtw.QDialog.Accepted:
-            # Get the file string and add default extension if not present.
             file = str(dialog.selectedFiles()[0])
+            if mode == 'Load' and not os.path.exists(file):
+                file = None
         else:
-            file = ''
-        if mode == 'Load':
-            if not os.path.exists(file):
-                file = ''
+            file = None
         return file
 
 
@@ -1164,4 +1169,5 @@ if __name__ == '__main__':
     win = qtw.QApplication(sys.argv)
     mainwin = MainWin()
     about = About()
+    mainwin.show()
     sys.exit(win.exec_())
